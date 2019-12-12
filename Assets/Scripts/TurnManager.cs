@@ -47,6 +47,21 @@ public class TurnManager : MonoBehaviour
         return false;
     }
 
+    //return true if play can be killed in next move, and in true case, piece has the chesspiece that can kill
+    public bool CanKillPlayer(ref ChessPieces piece)
+    {
+        piece = null;
+        foreach(ChessPieces cp in pieces)
+        {
+            if (cp.CanKillPlayerInMove())
+            {
+                piece = cp;
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void AdvanceTurn()
     {
         StopAllCoroutines();
@@ -59,23 +74,22 @@ public class TurnManager : MonoBehaviour
     public void DecideNextMove()
     {
         //Machine makes movement
-        if (!cp.CanKillPlayerInMove())
+        ChessPieces killPiece = null;
+        if (!CanKillPlayer(ref killPiece))
         {
             cp.MoveToRandom();
-            cp.MarkThreatsTile();
-
 
             AdvanceTurn();
+
+
+            if (NoValidMove())
+            {
+                Debug.Log("MEGA FAIL, NO VALID MOV FOR THE PLAYER");
+            }
         }
         else
         {
             Debug.Log("END GAME OR KILL PLAYER OR ONE LIFE LESS");
-        }
-
-
-        if (NoValidMove())
-        {
-            Debug.Log("MEGA FAIL, NO VALID MOV FOR THE PLAYER");
         }
     }
 
@@ -88,15 +102,18 @@ public class TurnManager : MonoBehaviour
         }
         else
         {
-            ChessPieces aux = cp;
-            
             cp = pieces[Random.Range(0, pieces.Length)];
             yield return new WaitForSeconds(machine_turn_time);
-            if (aux)
+
+            foreach (ChessPieces mark in pieces)
             {
-                aux.UnMarkThreatsTile();
+                mark.UnMarkThreatsTile();
             }
             DecideNextMove();
+            foreach (ChessPieces mark in pieces)
+            {
+                mark.MarkThreatsTile();
+            }
         }
         
     }

@@ -10,15 +10,24 @@ public class TileGenerator : MonoBehaviour
 
     public GameObject g_Tile;
 
+    public ChessPieces[] pieces;
+
     Tile[,] tiles;
+
+    public Tile[,] Map {
+        get { return tiles; }
+    }
 
     int actual = 0;
 
     int lastX;
 
+    bool initPieces = true;
+
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
+        pieces = GameObject.FindObjectsOfType<ChessPieces>();
         lastX = x;
 
         tiles = new Tile[x,y];
@@ -31,7 +40,6 @@ public class TileGenerator : MonoBehaviour
             {
                 tiles[i, j] = Instantiate(g_Tile).GetComponent<Tile>();
                 Tile aux = tiles[i, j];
-                aux.transform.SetParent(transform);
                 aux.SetPosition(i, j);
                 if (white)
                 {
@@ -49,12 +57,25 @@ public class TileGenerator : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        
+    }
     //Destroy the last line, and create one in front
     public void NewLine()
     {
         for(int i = 0; i < y; i++)
         {
-            tiles[actual, i].SetPosition(lastX, i);
+            Tile t = tiles[actual, i];
+            t.SetPosition(lastX, i);
+            if (t.isWhite) {
+                t.SetWhite();
+            }
+            else
+            {
+                t.SetBlack();
+            }
+
         }
         lastX++;
 
@@ -64,6 +85,17 @@ public class TileGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (initPieces)
+        {
+            foreach (ChessPieces cp in pieces)
+            {
+                cp.MoveTo(cp._x, cp._y);
+            }
+            initPieces = false;
+        }
+        else
+        {
+
+        }
     }
 }

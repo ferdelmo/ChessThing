@@ -6,6 +6,8 @@ public class ChessPieces : MonoBehaviour
 {
     public int _x, _y;
 
+    public Tile tile;
+
     TurnManager tm;
 
     List<Tile> threatedTile = new List<Tile>();
@@ -33,25 +35,38 @@ public class ChessPieces : MonoBehaviour
 
     public virtual void Start()
     {
-        MoveTo(_x,_y);
         tm = GameObject.FindGameObjectWithTag("TileGenerator").GetComponent<TurnManager>();
     }
 
     public virtual void MoveTo(int x, int y)
     {
         _x = x; _y = y;
+        if (tile)
+        {
+            tile.piece = null;
+        }
+        tile = CheckExistTile(x, y);
+        tile.piece = this;
+        tile.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.yellow);
         transform.position = Tile.Position(x, y);
     }
 
     public Tile CheckExistTile(int x, int y)
     {
         RaycastHit hit;
-
-        LayerMask lm = LayerMask.GetMask("Pieces", "Tile");
-
-        if (Physics.Raycast(Tile.Position(x, y) + new Vector3(0, 10, 0), -Vector3.up, out hit, 100.0f,lm))
+        
+        Ray r = new Ray(Tile.Position(x, y) + new Vector3(0, 10, 0), new Vector3(0, -1, 0));
+        if (Physics.Raycast(r, out hit, 100, LayerMask.GetMask("Tile")))
         {
-            return hit.transform.gameObject.GetComponent<Tile>();
+            Tile aux =  hit.transform.gameObject.GetComponent<Tile>();
+            if(aux == tile)
+            {
+                return null;
+            }
+            else
+            {
+                return aux;
+            }
         }
         else
         {
@@ -65,7 +80,6 @@ public class ChessPieces : MonoBehaviour
         foreach (Tile t in GetPosibleMovements())
         {
             LayerMask lm = LayerMask.GetMask("Player");
-
             if (Physics.Raycast(t.transform.position + new Vector3(0, 10, 0), -Vector3.up, 100.0f,lm))
             {
                 return true;

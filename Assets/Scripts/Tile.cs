@@ -9,6 +9,8 @@ public class Tile : MonoBehaviour
 
     public static float tileSize = 1;
 
+    public ChessPieces piece;
+
     public static Vector3 Position(int x, int y)
     {
         return startPos + new Vector3(x * tileSize, 0, y * tileSize);
@@ -91,8 +93,33 @@ public class Tile : MonoBehaviour
         }
     }
 
-    public Tile()
+    public static bool operator ==(Tile lhs, Tile rhs)
     {
-        
+        if (lhs != null && rhs != null && lhs._x == rhs._x && lhs._y == rhs._y)
+        {
+            return true;
+        }
+        return false;
+    }
+    public static bool operator !=(Tile lhs, Tile rhs)
+    {
+        if (!lhs && !rhs)
+        {
+            return false;
+        }
+        if (!lhs)
+        {
+            return true;
+        }
+        if (!rhs)
+        {
+            return true;
+        }
+        if (lhs._x == rhs._x && lhs._y == rhs._y)
+        {
+
+            return false;
+        }
+        return true;
     }
 }
