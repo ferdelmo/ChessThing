@@ -68,6 +68,29 @@ public class Tile : MonoBehaviour
         transform.position = startPos + new Vector3(x * tileSize, 0, y * tileSize);
     }
 
+    public void MoveToNewPosition(int x, int y)
+    {
+        //Add some animations to look coler if time
+        SetPosition(x, y);
+    }
+
+    public void MarkAsThreat()
+    {
+        GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
+    }
+
+    public void UnMarkAsThreat()
+    {
+        if (isWhite)
+        {
+            SetWhite();
+        }
+        else
+        {
+            SetBlack();
+        }
+    }
+
     public Tile()
     {
         

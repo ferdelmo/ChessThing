@@ -28,9 +28,6 @@ public class Knight : ChessPieces
     // Update is called once per frame
     void Update()
     {
-        foreach (Tile t in GetPosibleMovements())
-        {
-            t.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
-        }
+        
     }
 }

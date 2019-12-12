@@ -5,7 +5,12 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
 
+    public int start_x, start_y;
+
     int _x, _y;
+
+    TileGenerator tg;
+    TurnManager tm;
 
     public int x {
         get { return _x; }
@@ -24,27 +29,30 @@ public class Player : MonoBehaviour
 
     public void Start()
     {
-        SetPosition(0,0);
+        SetPosition(start_x, start_y);
+
+        tg = GameObject.FindGameObjectWithTag("TileGenerator").GetComponent<TileGenerator>();
+        tm = GameObject.FindGameObjectWithTag("TileGenerator").GetComponent<TurnManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.W))
+        if (tm.IsPlayerTurn)
         {
-            SetPosition(_x + 1, _y);
-        }
-        else if (Input.GetKeyDown(KeyCode.A))
-        {
-            SetPosition(_x, _y + 1);
-        }
-        else if (Input.GetKeyDown(KeyCode.S))
-        {
-            SetPosition(_x - 1, _y);
-        }
-        else if (Input.GetKeyDown(KeyCode.D))
-        {
-            SetPosition(_x, _y - 1);
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                SetPosition(_x + 1, _y);
+                tg.NewLine();
+                tm.AdvanceTurn();
+            }
+            else if (Input.GetKeyDown(KeyCode.W))
+            {
+                SetPosition(_x + 2, _y);
+                tg.NewLine();
+                tg.NewLine();
+                tm.AdvanceTurn();
+            }
         }
     }
 }
