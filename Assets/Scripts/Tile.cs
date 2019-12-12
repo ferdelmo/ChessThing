@@ -9,7 +9,7 @@ public class Tile : MonoBehaviour
 
     public static float tileSize = 1;
 
-    public ChessPieces piece;
+    public ChessPieces piece=null;
 
     public static Vector3 Position(int x, int y)
     {

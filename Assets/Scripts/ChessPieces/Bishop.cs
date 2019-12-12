@@ -4,30 +4,20 @@ using UnityEngine;
 
 public class Bishop : ChessPieces
 {
+
     public override Tile[] GetPosibleMovements()
     {
         List<Tile> resul = new List<Tile>();
-
-        for(int i = 0; i < 8; i++)
+        for(int j = 0; j < 4; j++)
         {
-            for(int j = 0; j < 4; j++)
-            {
-                int auxx = (j % 2==0) ? -1 : 1;
-                int auxy = (j / 2 == 0) ? -1 : 1;
-                Tile t = CheckExistTile(i * auxx + _x, i * auxy + _y);
-                if (t)
-                {
-                    resul.Add(t);
-                }
-            }
+            int auxx = (j % 2==0) ? -1 : 1;
+            int auxy = (j / 2 == 0) ? -1 : 1;
+            Debug.Log(auxx + " " + auxy);
+            Tile[] movs = GetPosibleMovementsDirection(new Vector2(_x,_y), new Vector2(auxx, auxy));
+
+            resul.AddRange(movs);
         }
 
         return resul.ToArray();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

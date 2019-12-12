@@ -25,10 +25,4 @@ public class Knight : ChessPieces
 
         return resul.ToArray();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

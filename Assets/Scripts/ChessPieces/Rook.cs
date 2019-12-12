@@ -11,30 +11,19 @@ public class Rook : ChessPieces
     {
         List<Tile> resul = new List<Tile>();
 
-        for (int i = 0; i < 10; i++)
-        {
-            Tile t = CheckExistTile(_x + i, _y);
-            if (t)
-            {
-                resul.Add(t);
-            }
-            t = CheckExistTile(_x - i, _y);
-            if (t)
-            {
-                resul.Add(t);
-            }
-            t = CheckExistTile(_x, _y + i);
-            if (t)
-            {
-                resul.Add(t);
-            }
-            t = CheckExistTile(_x, _y - i);
-            if (t)
-            {
-                resul.Add(t);
-            }
-        }
+        //X movement
+        Tile[] aux = GetPosibleMovementsDirection(new Vector2(_x, _y), new Vector2(1, 0));
+        resul.AddRange(aux);
 
+        aux = GetPosibleMovementsDirection(new Vector2(_x, _y), new Vector2(-1, 0));
+        resul.AddRange(aux);
+
+        //Y movement
+        aux = GetPosibleMovementsDirection(new Vector2(_x, _y), new Vector2(0, 1));
+        resul.AddRange(aux);
+
+        aux = GetPosibleMovementsDirection(new Vector2(_x, _y), new Vector2(0, -1));
+        resul.AddRange(aux);
         return resul.ToArray();
     }
 }
