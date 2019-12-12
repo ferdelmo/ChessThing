@@ -25,6 +25,13 @@ public class IAMovement
 
     private static IAMovement _instance = new IAMovement();
 
+    public Player player;
+
+    private IAMovement()
+    {
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+    }
+
     public static IAMovement Instance {
         get {
             return _instance;
@@ -86,6 +93,13 @@ public class IAMovement
         return finalMovs.ToArray();
     }
 
+    public void TileToThread(out int x, out int y)
+    {
+        x = player.x + Random.Range(0, 2);
+        y = player.y;
+
+    }
+
     //return true if player is killed
     public bool DecideNextMovement()
     {
@@ -109,11 +123,14 @@ public class IAMovement
                 {
                     int i = Random.Range(0, copied0.Count);
                     Movement mov;
-                    if (copied0[i].CanThreatInAMov(out mov))
+                    int x, y;
+                    TileToThread(out x, out y);
+                    if (copied0[i].CanThreatInAMov(out mov,x,y))
                     {
                         //Execute movement
                         threated0 = true;
                         Debug.Log("MOVE TO THREAT");
+                        copied0[i].MoveTo(mov.tile.x,mov.tile.y);
                     }
                     else
                     {
@@ -140,11 +157,14 @@ public class IAMovement
                     {
                         int i = Random.Range(0, copied1.Count);
                         Movement mov;
-                        if (copied1[i].CanThreatInAMov(out mov))
+                        int x, y;
+                        TileToThread(out x, out y);
+                        if (copied1[i].CanThreatInAMov(out mov,x,y))
                         {
                             //Execute movement
                             threated1 = true;
                             Debug.Log("MOVE TO THREAT");
+                            copied1[i].MoveTo(mov.tile.x, mov.tile.y);
                         }
                         else
                         {
@@ -154,6 +174,7 @@ public class IAMovement
                 }
                 if(!threated1)
                 {
+                    Debug.Log("RANDOM MOVEMENT");
                     pieces[Random.Range(0, pieces.Count)].MoveToRandom();
                 }
                 break;

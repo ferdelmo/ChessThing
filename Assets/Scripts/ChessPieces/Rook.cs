@@ -26,4 +26,24 @@ public class Rook : ChessPieces
         resul.AddRange(aux);
         return resul.ToArray();
     }
+    public override bool CanThreatInAMov(out IAMovement.Movement mov, int x, int y)
+    {
+        mov = new IAMovement.Movement();
+        if(_y != player.y)
+        {
+            Tile t = CheckExistTile(x, _y);
+            if(t && !t.piece)
+            {
+                mov.piece = this;
+                mov.tile = t;
+                mov.isEmpty = false;
+                return true;
+            }
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }

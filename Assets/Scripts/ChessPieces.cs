@@ -10,10 +10,17 @@ public class ChessPieces : MonoBehaviour
 
     TurnManager tm;
 
+    protected Player player;
 
     Tile[] ts = new Tile[0];
 
     List<Tile> threatedTile = new List<Tile>();
+
+    public void Awake()
+    {
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+    }
+
     public virtual Tile[] GetPosibleMovements() {
         return new Tile[0];
     }
@@ -51,9 +58,26 @@ public class ChessPieces : MonoBehaviour
         }
     }
 
-    public virtual bool CanThreatInAMov(out IAMovement.Movement mov)
+    //Can threat the (x,y) tile in a mov, and return the mov that does it
+    public virtual bool CanThreatInAMov(out IAMovement.Movement mov, int x, int y)
     {
         mov = new IAMovement.Movement();
+        Tile[] tiles = GetPosibleMovements();
+
+        foreach(Tile t in tiles)
+        {
+            if (CanGoToFrom(t.x, t.y, x, y))
+            {
+                if (!t.piece)
+                {
+                    mov.isEmpty = false;
+                    mov.piece = this;
+                    mov.tile = t;
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
@@ -79,8 +103,31 @@ public class ChessPieces : MonoBehaviour
         }
         tile = CheckExistTile(x, y);
         tile.piece = this;
-        tile.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.yellow);
-        transform.position = Tile.Position(x, y);
+        StartCoroutine(MoveToAnim(tile));
+    }
+
+
+    public static float Arch(float t)
+    {
+        return t * (1 - t);
+    }
+
+    static float AnimDur = .75f;
+    public IEnumerator MoveToAnim(Tile t)
+    {
+
+        Vector3 startPos = transform.position;
+
+        float counter = 0;
+
+        while (counter < AnimDur)
+        {
+            counter += Time.deltaTime;
+            transform.position = Vector3.Lerp(startPos, t.transform.position, counter / AnimDur);
+            transform.position = new Vector3(transform.position.x, 1*Arch(counter/AnimDur), transform.position.z);
+            yield return null;
+        }
+        transform.position = Tile.Position(t.x, t.y);
     }
 
     public Tile CheckExistTile(int x, int y)
@@ -119,6 +166,23 @@ public class ChessPieces : MonoBehaviour
                 mov.isEmpty = false;
                 mov.piece = this;
                 mov.tile = t;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool CanGoToFrom(int x, int y, int destx, int desty)
+    {
+        int auxx = _x, auxy = _y;
+        _x = x;_y = y;
+        Tile[] tiles = GetPosibleMovements();
+        _x = auxx; _y = auxy;
+        foreach (Tile t in tiles)
+        {
+            
+            if(t.x == destx && t.y == desty && t.x!=x && t.y!=y)
+            {
                 return true;
             }
         }
@@ -167,7 +231,6 @@ public class ChessPieces : MonoBehaviour
             t.UnMarkAsThreat();
         }
         ts = GetPosibleMovements();
-        Debug.Log(ts.Length);
         foreach (Tile t in ts)
         {
             t.MarkAsThreat();

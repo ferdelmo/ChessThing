@@ -12,7 +12,6 @@ public class Bishop : ChessPieces
         {
             int auxx = (j % 2==0) ? -1 : 1;
             int auxy = (j / 2 == 0) ? -1 : 1;
-            Debug.Log(auxx + " " + auxy);
             Tile[] movs = GetPosibleMovementsDirection(new Vector2(_x,_y), new Vector2(auxx, auxy));
 
             resul.AddRange(movs);
