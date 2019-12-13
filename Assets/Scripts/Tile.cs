@@ -70,6 +70,35 @@ public class Tile : MonoBehaviour
         transform.position = startPos + new Vector3(x * tileSize, 0, y * tileSize);
     }
 
+    public void MoveTo(int x, int y)
+    {
+        _x = x;
+        _y = y;
+        StartCoroutine(SmoothOut(x, y));
+    }
+
+    float SmoothStart(float t)
+    {
+        return t * t;
+    }
+
+    static float AnimDur = .75f;
+    //Let the tile fall and then move it
+    IEnumerator SmoothOut(int x, int y)
+    {
+        Vector3 startPos = transform.position;
+
+        float counter = 0;
+
+        while (counter < AnimDur)
+        {
+            counter += Time.deltaTime;
+            transform.position = new Vector3(transform.position.x, -5 * SmoothStart(counter / AnimDur), transform.position.z);
+            yield return null;
+        }
+        transform.position = Tile.Position(x, y);
+    }
+
     public void MoveToNewPosition(int x, int y)
     {
         //Add some animations to look coler if time

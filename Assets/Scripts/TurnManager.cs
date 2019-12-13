@@ -12,9 +12,17 @@ public class TurnManager : MonoBehaviour
 
     ChessPieces cp;
 
+    public MyText playerTime;
+    public MyText machineTime;
+
+
     public bool IsPlayerTurn {
         get { return player_turn; }
     }
+
+    float pTimer;
+    float mTimer;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,12 +31,30 @@ public class TurnManager : MonoBehaviour
         {
             IAMovement.Instance.pieces.Add(cp);
         }
+
+        pTimer = player_turn_time;
+        mTimer = machine_turn_time;
+        playerTime.Appear();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        //Inform about time
+        if (player_turn)
+        {
+            playerTime.SetText=(player_turn_time-pTimer).ToString("0.00");
+            machineTime.SetText = (machine_turn_time).ToString("0.00");
+            pTimer += Time.deltaTime;
+            mTimer = 0;
+        }
+        else
+        {
+            machineTime.SetText = (machine_turn_time - mTimer).ToString("0.00");
+            playerTime.SetText = (player_turn_time).ToString("0.00");
+            mTimer += Time.deltaTime;
+            pTimer = 0;
+        }
     }
 
     public void AdvanceTurn()

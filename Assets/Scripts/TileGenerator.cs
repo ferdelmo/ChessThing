@@ -67,7 +67,7 @@ public class TileGenerator : MonoBehaviour
         for(int i = 0; i < y; i++)
         {
             Tile t = tiles[actual, i];
-            t.SetPosition(lastX, i);
+            t.MoveTo(lastX, i);
             if (t.isWhite) {
                 t.SetWhite();
             }

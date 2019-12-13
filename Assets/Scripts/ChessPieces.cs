@@ -126,7 +126,10 @@ public class ChessPieces : MonoBehaviour
             tile.piece = null;
         }
         tile = CheckExistTile(x, y);
-        tile.piece = this;
+        if (tile)
+        {
+            tile.piece = this;
+        }
         StartCoroutine(MoveToAnim(tile));
     }
 
@@ -246,7 +249,7 @@ public class ChessPieces : MonoBehaviour
 
     public virtual void MoveToRandom()
     {
-        Tile[] posibleMovs = GetPosibleMovements();
+        Tile[] posibleMovs = GetPosibleMovementsNoPlayerColumn();
 
         Tile dest = posibleMovs[Random.Range(0, posibleMovs.Length)];
 

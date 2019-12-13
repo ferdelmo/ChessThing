@@ -16,6 +16,12 @@ public class IAMovement
             tile = null;
             isEmpty = true;
         }
+        public Movement(ChessPieces p, Tile t)
+        {
+            piece = p;
+            tile = t;
+            isEmpty = false;
+        }
     }
 
 
@@ -39,7 +45,6 @@ public class IAMovement
         }
     }
 
-    const int MAX_PIECES = 5;
 
     public enum State { Clear = 0, One = 1, Two = 2, Three = 3};
 
@@ -75,6 +80,7 @@ public class IAMovement
         return false;
     }
 
+    const int MAX_PIECES = 0;
     public void CreatePiece()
     {
         if(pieces.Count < MAX_PIECES)
@@ -101,6 +107,7 @@ public class IAMovement
             {
                 y++;
             }
+            cp.transform.position = new Vector3(x, 0, y);
             cp.MoveTo(x, y);
             pieces.Add(cp);
         }
@@ -155,6 +162,10 @@ public class IAMovement
     //return true if player is killed
     public bool DecideNextMovement()
     {
+        int destroyedPieces = 0;
+
+        List<Movement> movsToExec = new List<Movement>();
+
         for(int i=0;i<pieces.Count;i++)
         {
             ChessPieces cp = pieces[i];
@@ -162,8 +173,15 @@ public class IAMovement
             {
                 pieces.RemoveAt(i);
                 GameObject.Destroy(cp.gameObject);
+                ++destroyedPieces;
             }
         }
+
+        if (destroyedPieces > 0)
+        {
+            CreatePiece();
+        }
+
         Movement kill = new Movement();
         if (CanKillPlayer(ref kill))
         {
@@ -193,7 +211,7 @@ public class IAMovement
                             //Execute movement
                             threated0 = true;
                             Debug.Log("MOVE TO THREAT");
-                            copied0[i].MoveTo(mov.tile.x, mov.tile.y);
+                            movsToExec.Add(new Movement(copied0[i], mov.tile));
 
                         }
                     }
@@ -216,7 +234,7 @@ public class IAMovement
                 Debug.Log("One threat");
 
                 bool threated1 = false;
-                if (Random.Range(0.0f, 1.0f) <= 0.75f)
+                if (Random.Range(0.0f, 1.0f) <= 0.75f || true)
                 {
                     List<ChessPieces> copied1 = new List<ChessPieces>(pieces);
 
@@ -234,7 +252,7 @@ public class IAMovement
                                 //Execute movement
                                 threated1 = true;
                                 Debug.Log("MOVE TO THREAT");
-                                copied1[i].MoveTo(mov.tile.x, mov.tile.y);
+                                movsToExec.Add(new Movement(copied1[i], mov.tile));
 
                             }
                         }
@@ -262,6 +280,11 @@ public class IAMovement
                 Debug.Log("PLAYER IS GOING TO LOSE");
 
                 break;
+        }
+
+        foreach(Movement mov in movsToExec)
+        {
+            mov.piece.MoveTo(mov.tile.x, mov.tile.y);
         }
 
         return false;

@@ -37,7 +37,7 @@ public class Player : MonoBehaviour
         tm = GameObject.FindGameObjectWithTag("TileGenerator").GetComponent<TurnManager>();
     }
 
-    static float AnimDur = .75f;
+    static float AnimDur = .3f;
     public IEnumerator MoveToAnim(int x, int y)
     {
 
