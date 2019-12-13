@@ -16,7 +16,7 @@ public class Bishop : ChessPieces
 
             resul.AddRange(movs);
         }
-
+    
         return resul.ToArray();
     }
 }

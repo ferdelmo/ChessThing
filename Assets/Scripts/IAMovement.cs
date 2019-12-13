@@ -17,6 +17,30 @@ public class IAMovement
             isEmpty = true;
         }
     }
+
+
+    public class TileToThread
+    {
+        List<int> numbers = new List<int> { 0, 1, 2 };
+
+        public int Get()
+        {
+            if (numbers.Count > 0)
+            {
+                int aux = Random.Range(0, numbers.Count);
+                int resul = numbers[aux];
+                numbers.RemoveAt(aux);
+                return resul;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
+
+    const int MAX_PIECES = 5;
+
     public enum State { Clear = 0, One = 1, Two = 2, Three = 3};
 
     public State state = State.Clear;
@@ -49,6 +73,41 @@ public class IAMovement
             }
         }
         return false;
+    }
+
+    public void CreatePiece()
+    {
+        if(pieces.Count < MAX_PIECES)
+        {
+            int type = Random.Range(0, 3); //0 kngiht, 1 bishop, 2 rook
+
+            //Calculate pos
+            int y = Random.Range(0, 7);
+            int x = player.x + 7;
+            ChessPieces cp = null;
+            switch (type)
+            {
+                case 0:
+                    cp = ((GameObject)GameObject.Instantiate(Resources.Load("Prefab/Knight"))).GetComponent<Knight>();
+                    break;
+                case 1:
+                    cp = ((GameObject)GameObject.Instantiate(Resources.Load("Prefab/Bishop"))).GetComponent<Bishop>();
+                    break;
+                case 2:
+                    cp = ((GameObject)GameObject.Instantiate(Resources.Load("Prefab/Rook"))).GetComponent<Rook>();
+                    break;
+            }
+            if (y == player.y)
+            {
+                y++;
+            }
+            cp.MoveTo(x, y);
+            pieces.Add(cp);
+        }
+        else
+        {
+            Debug.Log("TOO MUCH PIECES");
+        }
     }
 
     //update state and return an array with the movements that can threat the player
@@ -93,16 +152,18 @@ public class IAMovement
         return finalMovs.ToArray();
     }
 
-    public void TileToThread(out int x, out int y)
-    {
-        x = player.x + Random.Range(0, 2);
-        y = player.y;
-
-    }
-
     //return true if player is killed
     public bool DecideNextMovement()
     {
+        for(int i=0;i<pieces.Count;i++)
+        {
+            ChessPieces cp = pieces[i];
+            if (cp.ShouldDestroy())
+            {
+                pieces.RemoveAt(i);
+                GameObject.Destroy(cp.gameObject);
+            }
+        }
         Movement kill = new Movement();
         if (CanKillPlayer(ref kill))
         {
@@ -123,16 +184,20 @@ public class IAMovement
                 {
                     int i = Random.Range(0, copied0.Count);
                     Movement mov;
-                    int x, y;
-                    TileToThread(out x, out y);
-                    if (copied0[i].CanThreatInAMov(out mov,x,y))
+                    TileToThread ttt = new TileToThread();
+                    int auxx;
+                    while (!threated0 && (auxx = ttt.Get())!=-1)
                     {
-                        //Execute movement
-                        threated0 = true;
-                        Debug.Log("MOVE TO THREAT");
-                        copied0[i].MoveTo(mov.tile.x,mov.tile.y);
+                        if(copied0[i].CanThreatInAMov(out mov, player.x + auxx, player.y))
+                        {
+                            //Execute movement
+                            threated0 = true;
+                            Debug.Log("MOVE TO THREAT");
+                            copied0[i].MoveTo(mov.tile.x, mov.tile.y);
+
+                        }
                     }
-                    else
+                    if(!threated0)
                     {
                         copied0.RemoveAt(i);
                     }
@@ -141,7 +206,9 @@ public class IAMovement
                 if (threated0 == false)
                 {
                     //Create another piece of chess, maybe with a probability to measure difficulty, or move random
-                    Debug.Log("Create piece or random movement");
+                    Debug.Log("Create piece and random movement");
+                    //pieces[Random.Range(0, pieces.Count)].MoveToRandom();
+                    CreatePiece();
                 }
                 break;
             case State.One:
@@ -149,7 +216,7 @@ public class IAMovement
                 Debug.Log("One threat");
 
                 bool threated1 = false;
-                if (Random.Range(0.0f, 1.0f) <= 0.3f)
+                if (Random.Range(0.0f, 1.0f) <= 0.75f)
                 {
                     List<ChessPieces> copied1 = new List<ChessPieces>(pieces);
 
@@ -157,16 +224,21 @@ public class IAMovement
                     {
                         int i = Random.Range(0, copied1.Count);
                         Movement mov;
-                        int x, y;
-                        TileToThread(out x, out y);
-                        if (copied1[i].CanThreatInAMov(out mov,x,y))
+                        TileToThread ttt = new TileToThread();
+                        int auxx;
+                        //CHANGE TO FIRST TRY TO THREAT NON THREATED TILES
+                        while (!threated1 && (auxx = ttt.Get()) != -1)
                         {
-                            //Execute movement
-                            threated1 = true;
-                            Debug.Log("MOVE TO THREAT");
-                            copied1[i].MoveTo(mov.tile.x, mov.tile.y);
+                            if (copied1[i].CanThreatInAMov(out mov, player.x + auxx, player.y))
+                            {
+                                //Execute movement
+                                threated1 = true;
+                                Debug.Log("MOVE TO THREAT");
+                                copied1[i].MoveTo(mov.tile.x, mov.tile.y);
+
+                            }
                         }
-                        else
+                        if (!threated1)
                         {
                             copied1.RemoveAt(i);
                         }
@@ -174,18 +246,21 @@ public class IAMovement
                 }
                 if(!threated1)
                 {
-                    Debug.Log("RANDOM MOVEMENT");
-                    pieces[Random.Range(0, pieces.Count)].MoveToRandom();
+                    Debug.Log("CREATE A PIECE");
+                    //pieces[Random.Range(0, pieces.Count)].MoveToRandom();
+                    CreatePiece();
                 }
                 break;
             case State.Two:
                 //There are two threat, eliminate one or move random
                 Debug.Log("Two threats");
+                Debug.Log("Move one to reduce threat");
                 movs[Random.Range(0, movs.Length)].piece.MoveToRandom();
                 break;
             case State.Three:
                 // TOO MANY THREATS, PLAYER CANT WIN
                 Debug.Log("PLAYER IS GOING TO LOSE");
+
                 break;
         }
 

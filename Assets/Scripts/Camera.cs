@@ -8,8 +8,6 @@ public class Camera : MonoBehaviour
 
     public int x_offset, y_offset, h_offset;
 
-    int _x, _y;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -19,9 +17,8 @@ public class Camera : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
-        _x = follow.x + x_offset;
-        _y = follow.y + y_offset;
 
-        transform.position = Tile.Position(_x, _y) + new Vector3(0, h_offset, 0);
+        transform.position = follow.transform.position + new Vector3(x_offset, h_offset, y_offset);
+        transform.position = new Vector3(transform.position.x, h_offset, transform.position.z);
     }
 }

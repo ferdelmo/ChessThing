@@ -24,7 +24,9 @@ public class Player : MonoBehaviour
     public void SetPosition(int x, int y)
     {
         _x = x; _y = y;
-        transform.position = Tile.Position(x, y);
+
+        //transform.position = Tile.Position(x, y);
+        StartCoroutine(MoveToAnim(x,y));
     }
 
     public void Start()
@@ -33,6 +35,24 @@ public class Player : MonoBehaviour
 
         tg = GameObject.FindGameObjectWithTag("TileGenerator").GetComponent<TileGenerator>();
         tm = GameObject.FindGameObjectWithTag("TileGenerator").GetComponent<TurnManager>();
+    }
+
+    static float AnimDur = .75f;
+    public IEnumerator MoveToAnim(int x, int y)
+    {
+
+        Vector3 startPos = transform.position;
+
+        float counter = 0;
+
+        while (counter < AnimDur)
+        {
+            counter += Time.deltaTime;
+            transform.position = Vector3.Lerp(startPos, Tile.Position(x,y), counter / AnimDur);
+            transform.position = new Vector3(transform.position.x, 1 * ChessPieces.Arch(counter / AnimDur), transform.position.z);
+            yield return null;
+        }
+        transform.position = Tile.Position(x, y);
     }
 
     // Update is called once per frame

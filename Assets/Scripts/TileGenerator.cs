@@ -75,7 +75,7 @@ public class TileGenerator : MonoBehaviour
             {
                 t.SetBlack();
             }
-
+            t.piece = null;
         }
         lastX++;
 

@@ -21,19 +21,35 @@ public class ChessPieces : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
 
-    public virtual Tile[] GetPosibleMovements() {
+    public virtual Tile[] GetPosibleMovements()
+    {
         return new Tile[0];
     }
 
+    public virtual Tile[] GetPosibleMovementsNoPlayerColumn()
+    {
+        List<Tile> lt = new List<Tile>();
+        lt.AddRange(GetPosibleMovements());
+        for (int i=0;i<lt.Count;i++)
+        {
+            Tile t = lt[i];
+            if (t.y == player.y)
+            {
+                lt.RemoveAt(i); ;
+            }
+        }
+
+        return lt.ToArray();
+    }
 
     const int MAX_DIAG = 8;
     //dir must be {1,1}, {1,-1} {-1,1} {-1,-1}
     public Tile[] GetPosibleMovementsDirection(Vector2 start, Vector2 dir)
     {
         List<Tile> resul = new List<Tile>();
-        for(int i = 1; i < MAX_DIAG; i++)
+        for (int i = 1; i < MAX_DIAG; i++)
         {
-            Tile t = CheckExistTile((int)start.x+(int)dir.x*i,(int)start.y+(int)dir.y*i);
+            Tile t = CheckExistTile((int)start.x + (int)dir.x * i, (int)start.y + (int)dir.y * i);
             if (t && !t.piece)
             {
 
@@ -51,7 +67,7 @@ public class ChessPieces : MonoBehaviour
     {
         Tile[] posibleMovs = GetPosibleMovements();
         threatedTile.Clear();
-        foreach(Tile t in posibleMovs)
+        foreach (Tile t in posibleMovs)
         {
             threatedTile.Add(t);
             t.MarkAsThreat();
@@ -62,9 +78,9 @@ public class ChessPieces : MonoBehaviour
     public virtual bool CanThreatInAMov(out IAMovement.Movement mov, int x, int y)
     {
         mov = new IAMovement.Movement();
-        Tile[] tiles = GetPosibleMovements();
+        Tile[] tiles = GetPosibleMovementsNoPlayerColumn();
 
-        foreach(Tile t in tiles)
+        foreach (Tile t in tiles)
         {
             if (CanGoToFrom(t.x, t.y, x, y))
             {
@@ -80,6 +96,14 @@ public class ChessPieces : MonoBehaviour
 
         return false;
     }
+
+    //Avoid to cover position x,y
+    public virtual bool AvoidThreat(out IAMovement.Movement mov, int x, int y)
+    {
+        mov = new IAMovement.Movement();
+        return false;
+    }
+
 
     public virtual void UnMarkThreatsTile()
     {
@@ -124,7 +148,7 @@ public class ChessPieces : MonoBehaviour
         {
             counter += Time.deltaTime;
             transform.position = Vector3.Lerp(startPos, t.transform.position, counter / AnimDur);
-            transform.position = new Vector3(transform.position.x, 1*Arch(counter/AnimDur), transform.position.z);
+            transform.position = new Vector3(transform.position.x, 1 * Arch(counter / AnimDur), transform.position.z);
             yield return null;
         }
         transform.position = Tile.Position(t.x, t.y);
@@ -133,13 +157,13 @@ public class ChessPieces : MonoBehaviour
     public Tile CheckExistTile(int x, int y)
     {
         RaycastHit hit;
-        
+
         Ray r = new Ray(Tile.Position(x, y) + new Vector3(0, 10, 0), new Vector3(0, -1, 0));
 
         if (Physics.Raycast(r, out hit, 100, LayerMask.GetMask("Tile")))
         {
-            Tile aux =  hit.transform.gameObject.GetComponent<Tile>();
-            if(aux == tile)
+            Tile aux = hit.transform.gameObject.GetComponent<Tile>();
+            if (aux == tile)
             {
                 return null;
             }
@@ -161,7 +185,7 @@ public class ChessPieces : MonoBehaviour
         foreach (Tile t in GetPosibleMovements())
         {
             LayerMask lm = LayerMask.GetMask("Player");
-            if (Physics.Raycast(t.transform.position + new Vector3(0, 10, 0), -Vector3.up, 100.0f,lm))
+            if (Physics.Raycast(t.transform.position + new Vector3(0, 10, 0), -Vector3.up, 100.0f, lm))
             {
                 mov.isEmpty = false;
                 mov.piece = this;
@@ -175,13 +199,13 @@ public class ChessPieces : MonoBehaviour
     public bool CanGoToFrom(int x, int y, int destx, int desty)
     {
         int auxx = _x, auxy = _y;
-        _x = x;_y = y;
+        _x = x; _y = y;
         Tile[] tiles = GetPosibleMovements();
         _x = auxx; _y = auxy;
         foreach (Tile t in tiles)
         {
-            
-            if(t.x == destx && t.y == desty && t.x!=x && t.y!=y)
+
+            if (t.x == destx && t.y == desty && t.x != x && t.y != y)
             {
                 return true;
             }
@@ -199,7 +223,7 @@ public class ChessPieces : MonoBehaviour
         LayerMask[] lm = new LayerMask[] { LayerMask.GetMask("Player"), LayerMask.GetMask("OneMove"), LayerMask.GetMask("TwoMove") };
         foreach (Tile t in GetPosibleMovements())
         {
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
             {
                 if (array[i].isEmpty)
                 {
@@ -213,6 +237,11 @@ public class ChessPieces : MonoBehaviour
                 }
             }
         }
+    }
+
+    public bool ShouldDestroy()
+    {
+        return !(tile.piece != null);
     }
 
     public virtual void MoveToRandom()
@@ -237,3 +266,4 @@ public class ChessPieces : MonoBehaviour
         }
     }
 }
+

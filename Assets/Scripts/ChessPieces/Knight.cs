@@ -16,9 +16,8 @@ public class Knight : ChessPieces
         for(int i = 0; i < 8; i++)
         {
             Tile t = CheckExistTile(_x + X[i], _y + Y[i]);
-            if (t)
+            if (t && !t.piece)
             {
-                
                 resul.Add(t);
             }
         }
