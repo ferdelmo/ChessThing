@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 
 public class MyCamera : MonoBehaviour
@@ -27,6 +28,9 @@ public class MyCamera : MonoBehaviour
     public GameObject GameOverCanvas;
 
     Coroutine rotate = null;
+
+    public Text survived;
+    public int n_turns = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -137,5 +141,6 @@ public class MyCamera : MonoBehaviour
     public void ShowGameOver()
     {
         GameOverCanvas.SetActive(true);
+        survived.text = "You survived " + n_turns + " turns.";
     }
 }

@@ -72,6 +72,7 @@ public class TurnManager : MonoBehaviour
         if (player_turn)
         {
             turns_survived++;
+            camera.n_turns = turns_survived;
             camera.PushPlayer();
             camera.SetPlayerTime(player_turn_time);
             yield return new WaitForSeconds(player_turn_time);
@@ -93,16 +94,18 @@ public class TurnManager : MonoBehaviour
             {
 
                 yield return new WaitForSeconds(machine_turn_time-killAnimTime);
-
-                foreach (ChessPieces mark in IAMovement.Instance.pieces)
+                if (IAMovement.Instance.showThreats)
                 {
-                    mark.UnMarkThreatsTile();
-                }
-                IAMovement.Instance.DecideNextMovement();
-                AdvanceTurn();
-                foreach (ChessPieces mark in IAMovement.Instance.pieces)
-                {
-                    mark.MarkThreatsTile();
+                    foreach (ChessPieces mark in IAMovement.Instance.pieces)
+                    {
+                        mark.UnMarkThreatsTile();
+                    }
+                    IAMovement.Instance.DecideNextMovement();
+                    AdvanceTurn();
+                    foreach (ChessPieces mark in IAMovement.Instance.pieces)
+                    {
+                        mark.MarkThreatsTile();
+                    }
                 }
             }
         }

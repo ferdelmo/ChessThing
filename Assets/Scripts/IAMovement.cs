@@ -46,6 +46,9 @@ public class IAMovement
     }
 
 
+    public int difficult = 0;
+    public bool showThreats = false;
+
     public enum State { Clear = 0, One = 1, Two = 2, Three = 3};
 
     public State state = State.Clear;

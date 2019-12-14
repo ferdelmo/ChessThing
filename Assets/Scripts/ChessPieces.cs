@@ -18,6 +18,8 @@ public class ChessPieces : MonoBehaviour
 
     MeshCollider[] meshCollider;
 
+    bool showThreats = false;
+
     public void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
@@ -29,6 +31,7 @@ public class ChessPieces : MonoBehaviour
 
 
         IAMovement.Instance.pieces.Add(this);
+        showThreats = IAMovement.Instance.showThreats;
     }
 
     public virtual Tile[] GetPosibleMovements()
@@ -268,14 +271,17 @@ public class ChessPieces : MonoBehaviour
 
     private void Update()
     {
-        foreach (Tile t in ts)
+        if (showThreats)
         {
-            t.UnMarkAsThreat();
-        }
-        ts = GetPosibleMovements();
-        foreach (Tile t in ts)
-        {
-            t.MarkAsThreat();
+            foreach (Tile t in ts)
+            {
+                t.UnMarkAsThreat();
+            }
+            ts = GetPosibleMovements();
+            foreach (Tile t in ts)
+            {
+                t.MarkAsThreat();
+            }
         }
     }
 
