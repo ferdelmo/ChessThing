@@ -553,20 +553,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1360425489272213419}
   m_PrefabAsset: {fileID: 0}
---- !u!64 &925585401
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 925585400}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Convex: 1
-  m_CookingOptions: 14
-  m_Mesh: {fileID: 1737872282134143202, guid: ec2fdc42de382314ebd3e355f9706c35, type: 3}
 --- !u!1001 &1019523754
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1724,7 +1710,7 @@ MonoBehaviour:
   player_push: {fileID: 5126808986344228985}
   machine_push: {fileID: 779239822518613792}
   startRot_m: 0
-  startRot_p: 270
+  startRot_p: 360
   GameOverCanvas: {fileID: 1346880288}
   survived: {fileID: 2036645541}
   n_turns: 0

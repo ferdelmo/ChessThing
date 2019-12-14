@@ -82,7 +82,7 @@ public class Tile : MonoBehaviour
         return t * t;
     }
 
-    static float AnimDur = .75f;
+    static float AnimDur = .25f;
     //Let the tile fall and then move it
     IEnumerator SmoothOut(int x, int y)
     {

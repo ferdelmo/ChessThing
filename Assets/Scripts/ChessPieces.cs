@@ -275,16 +275,7 @@ public class ChessPieces : MonoBehaviour
         }
         else
         {
-            tile = CheckExistTile(_x, _y);
-            if (tile)
-            {
-                return !(tile.piece != null);
-            }
-            else
-            {
-                Debug.Log("CULO");
-                return true;
-            }
+            return true;
         }
     }
 
@@ -328,10 +319,10 @@ public class ChessPieces : MonoBehaviour
             mc.enabled = true;
 
         }
-
-
-
-        AnimDur = 0.4f;
+        if (AnimDur > 0.4)
+        {
+            AnimDur = 0.4f;
+        }
         MoveTo(player.x, player.y);
 
         yield return new WaitForSeconds(2);

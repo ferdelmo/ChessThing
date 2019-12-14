@@ -41,7 +41,7 @@ public class Player : MonoBehaviour
         IAMovement.Instance.player = this;
     }
 
-    static float AnimDur = .3f;
+    public static float AnimDur = .3f;
     public IEnumerator MoveToAnim(int x, int y)
     {
 

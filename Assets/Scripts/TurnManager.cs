@@ -36,16 +36,19 @@ public class TurnManager : MonoBehaviour
                 player_turn_time = 4.0f;
                 machine_turn_time = 1f;
                 ChessPieces.AnimDur = .75f;
+                Player.AnimDur = .3f;
                 break;
             case 1:
                 player_turn_time = 3f;
                 machine_turn_time = 0.5f;
                 ChessPieces.AnimDur = .35f;
+                Player.AnimDur = .1f;
                 break;
             case 2:
                 player_turn_time = 1f;
                 machine_turn_time = 0.25f;
-                ChessPieces.AnimDur = .25f;
+                ChessPieces.AnimDur = .1f;
+                Player.AnimDur = .05f; 
                 break;
         }
         pTimer = player_turn_time;
@@ -99,17 +102,33 @@ public class TurnManager : MonoBehaviour
         {
             camera.PushMachine();
             camera.SetMachineTime(machine_turn_time);
-            const float killAnimTime = 1;
-
-            yield return new WaitForSeconds(killAnimTime);
-
+            float killAnimTime = 1;
+            bool waitKill = false;
+            if (killAnimTime < machine_turn_time)
+            {
+                yield return new WaitForSeconds(killAnimTime);
+                waitKill = true;
+            }
+            else
+            {
+                waitKill = false;
+                killAnimTime = 0;
+                yield return new WaitForSeconds(machine_turn_time - killAnimTime);
+            }
             if (IAMovement.Instance.KillPlayer())
             {
                 Debug.Log("END GAMEEE");
             }
             else
             {
-                yield return new WaitForSeconds(machine_turn_time-killAnimTime);
+                if (waitKill)
+                {
+                    yield return new WaitForSeconds(machine_turn_time - killAnimTime);
+                }
+                if (!waitKill)
+                {
+                    IAMovement.Instance.KillPlayer();
+                }
                 if (IAMovement.Instance.showThreats)
                 {
                     foreach (ChessPieces mark in IAMovement.Instance.pieces)
@@ -130,6 +149,6 @@ public class TurnManager : MonoBehaviour
                 }
             }
         }
-        
+
     }
 }

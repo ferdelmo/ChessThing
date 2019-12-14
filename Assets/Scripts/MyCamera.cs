@@ -22,7 +22,7 @@ public class MyCamera : MonoBehaviour
     Vector3 offset, offset_p, offset_m;
 
     public float startRot_m = 0;
-    public float startRot_p = 270;
+    public float startRot_p = 359;
 
     bool first = true;
 
@@ -139,7 +139,11 @@ public class MyCamera : MonoBehaviour
 
     public void Restart()
     {
+        int dif = IAMovement.Instance.difficult;
+        bool show = IAMovement.Instance.showThreats;
         IAMovement.Instance.Reset();
+        IAMovement.Instance.difficult = dif;
+        IAMovement.Instance.showThreats = show;
         SceneManager.LoadScene("Level");
     }
 
