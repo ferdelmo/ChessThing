@@ -15,6 +15,8 @@ public class TurnManager : MonoBehaviour
     public MyText playerTime;
     public MyText machineTime;
 
+    Camera camera;
+
 
     public bool IsPlayerTurn {
         get { return player_turn; }
@@ -35,6 +37,7 @@ public class TurnManager : MonoBehaviour
         pTimer = player_turn_time;
         mTimer = machine_turn_time;
         playerTime.Appear();
+        camera = GetComponent<Camera>();
     }
 
     // Update is called once per frame
@@ -69,29 +72,36 @@ public class TurnManager : MonoBehaviour
     {
         if (player_turn)
         {
+            camera.PushPlayer();
             yield return new WaitForSeconds(player_turn_time);
             AdvanceTurn();
         }
         else
         {
-            
-            yield return new WaitForSeconds(machine_turn_time);
+            camera.PushMachine();
+            const float killAnimTime = 1;
 
-            foreach (ChessPieces mark in IAMovement.Instance.pieces)
-            {
-                mark.UnMarkThreatsTile();
-            }
-            if (IAMovement.Instance.DecideNextMovement())
+            yield return new WaitForSeconds(killAnimTime);
+
+            if (IAMovement.Instance.KillPlayer())
             {
                 Debug.Log("END GAMEEE");
             }
             else
             {
+
+                yield return new WaitForSeconds(machine_turn_time-killAnimTime);
+
+                foreach (ChessPieces mark in IAMovement.Instance.pieces)
+                {
+                    mark.UnMarkThreatsTile();
+                }
+                IAMovement.Instance.DecideNextMovement();
                 AdvanceTurn();
-            }
-            foreach (ChessPieces mark in IAMovement.Instance.pieces)
-            {
-                mark.MarkThreatsTile();
+                foreach (ChessPieces mark in IAMovement.Instance.pieces)
+                {
+                    mark.MarkThreatsTile();
+                }
             }
         }
         

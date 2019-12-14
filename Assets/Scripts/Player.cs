@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
     TileGenerator tg;
     TurnManager tm;
 
+    public GameObject pawn;
+
     public int x {
         get { return _x; }
     }
@@ -53,6 +55,20 @@ public class Player : MonoBehaviour
             yield return null;
         }
         transform.position = Tile.Position(x, y);
+    }
+
+    //Unable the box colliders and eneble the mesh collider and add a rigidbody for the kill
+    public void PrepareToKill()
+    {
+        GetComponent<BoxCollider>().enabled = false;
+        foreach (BoxCollider bc in GetComponentsInChildren<BoxCollider>())
+        {
+            bc.enabled = false;
+        }
+
+        pawn.GetComponent<MeshCollider>().enabled = true;
+
+        pawn.AddComponent<Rigidbody>();
     }
 
     // Update is called once per frame

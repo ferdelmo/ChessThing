@@ -16,9 +16,16 @@ public class ChessPieces : MonoBehaviour
 
     List<Tile> threatedTile = new List<Tile>();
 
+    MeshCollider[] meshCollider;
+
     public void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        meshCollider = GetComponentsInChildren<MeshCollider>();
+        foreach(MeshCollider mc in meshCollider)
+        {
+            mc.enabled = false;
+        }
     }
 
     public virtual Tile[] GetPosibleMovements()
@@ -267,6 +274,35 @@ public class ChessPieces : MonoBehaviour
         {
             t.MarkAsThreat();
         }
+    }
+
+    public void KillPlayer()
+    {
+        StartCoroutine(KillPlayerCoroutine());
+    }
+
+    public IEnumerator KillPlayerCoroutine()
+    {
+        player.PrepareToKill();
+
+        GetComponent<BoxCollider>().enabled = false;
+        foreach (MeshCollider mc in meshCollider)
+        {
+            mc.enabled = true;
+
+        }
+
+
+
+        AnimDur = 0.4f;
+        MoveTo(player.x, player.y);
+
+        yield return new WaitForSeconds(0.5f);
+
+        Rigidbody rb = player.pawn.GetComponent<Rigidbody>();
+
+        //rb.AddForce(new Vector3(100, 0, 100));
+
     }
 }
 

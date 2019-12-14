@@ -67,7 +67,7 @@ public class IAMovement
         }
     }
 
-    public bool CanKillPlayer(ref Movement mov)
+    public bool IsPlayerKillable(ref Movement mov)
     {
         mov = new Movement();
         foreach (ChessPieces cp in pieces)
@@ -159,8 +159,20 @@ public class IAMovement
         return finalMovs.ToArray();
     }
 
+    public bool KillPlayer()
+    {
+        Movement kill = new Movement();
+        if (IsPlayerKillable(ref kill))
+        {
+            //kill player and stop game
+            kill.piece.KillPlayer();
+            return true;
+        }
+        return false;
+    }
+
     //return true if player is killed
-    public bool DecideNextMovement()
+    public void DecideNextMovement()
     {
         int destroyedPieces = 0;
 
@@ -182,12 +194,6 @@ public class IAMovement
             CreatePiece();
         }
 
-        Movement kill = new Movement();
-        if (CanKillPlayer(ref kill))
-        {
-            //kill player and stop game
-            return true;
-        }
         Movement[] movs = UpdateState();
 
         switch (state)
@@ -286,7 +292,5 @@ public class IAMovement
         {
             mov.piece.MoveTo(mov.tile.x, mov.tile.y);
         }
-
-        return false;
     }
 }
