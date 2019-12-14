@@ -15,8 +15,10 @@ public class TurnManager : MonoBehaviour
     public MyText playerTime;
     public MyText machineTime;
 
-    Camera camera;
+    public MyCamera camera;
 
+
+    public int turns_survived = 0;
 
     public bool IsPlayerTurn {
         get { return player_turn; }
@@ -28,16 +30,11 @@ public class TurnManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        ChessPieces[] cps = GameObject.FindObjectsOfType<ChessPieces>();
-        foreach(ChessPieces cp in cps)
-        {
-            IAMovement.Instance.pieces.Add(cp);
-        }
 
         pTimer = player_turn_time;
         mTimer = machine_turn_time;
-        playerTime.Appear();
-        camera = GetComponent<Camera>();
+
+        camera.startRot_m = camera.startRot_p * machine_turn_time / player_turn_time;
     }
 
     // Update is called once per frame
@@ -46,15 +43,17 @@ public class TurnManager : MonoBehaviour
         //Inform about time
         if (player_turn)
         {
-            playerTime.SetText=(player_turn_time-pTimer).ToString("0.00");
-            machineTime.SetText = (machine_turn_time).ToString("0.00");
+            //playerTime.SetText=(player_turn_time-pTimer).ToString("0.00");
+            //machineTime.SetText = (machine_turn_time).ToString("0.00");
+
             pTimer += Time.deltaTime;
             mTimer = 0;
         }
         else
         {
-            machineTime.SetText = (machine_turn_time - mTimer).ToString("0.00");
-            playerTime.SetText = (player_turn_time).ToString("0.00");
+            //machineTime.SetText = (machine_turn_time - mTimer).ToString("0.00");
+            //playerTime.SetText = (player_turn_time).ToString("0.00");
+
             mTimer += Time.deltaTime;
             pTimer = 0;
         }
@@ -72,13 +71,16 @@ public class TurnManager : MonoBehaviour
     {
         if (player_turn)
         {
+            turns_survived++;
             camera.PushPlayer();
+            camera.SetPlayerTime(player_turn_time);
             yield return new WaitForSeconds(player_turn_time);
             AdvanceTurn();
         }
         else
         {
             camera.PushMachine();
+            camera.SetMachineTime(machine_turn_time);
             const float killAnimTime = 1;
 
             yield return new WaitForSeconds(killAnimTime);

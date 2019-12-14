@@ -26,6 +26,9 @@ public class ChessPieces : MonoBehaviour
         {
             mc.enabled = false;
         }
+
+
+        IAMovement.Instance.pieces.Add(this);
     }
 
     public virtual Tile[] GetPosibleMovements()
@@ -297,12 +300,12 @@ public class ChessPieces : MonoBehaviour
         AnimDur = 0.4f;
         MoveTo(player.x, player.y);
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1);
 
         Rigidbody rb = player.pawn.GetComponent<Rigidbody>();
 
-        //rb.AddForce(new Vector3(100, 0, 100));
 
+        Camera.main.transform.parent.GetComponent<MyCamera>().ShowGameOver();
     }
 }
 

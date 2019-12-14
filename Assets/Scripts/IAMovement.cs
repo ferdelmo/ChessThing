@@ -56,9 +56,17 @@ public class IAMovement
 
     public Player player;
 
+
+    public void Reset()
+    {
+        _instance = new IAMovement();
+    }
+
     private IAMovement()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        pieces = new List<ChessPieces>();
+        state = State.Clear;
     }
 
     public static IAMovement Instance {
@@ -80,7 +88,7 @@ public class IAMovement
         return false;
     }
 
-    const int MAX_PIECES = 0;
+    const int MAX_PIECES = 5;
     public void CreatePiece()
     {
         if(pieces.Count < MAX_PIECES)
