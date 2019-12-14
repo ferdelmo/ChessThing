@@ -199,7 +199,7 @@ GameObject:
   - component: {fileID: 1360425488294458247}
   m_Layer: 10
   m_Name: Pawn
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -292,8 +292,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed67886e13f4b854e926654f48c3edf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  start_x: 0
-  start_y: 0
+  start_x: 4
+  start_y: 3
+  pawn: {fileID: 7616042590330686867}
+--- !u!64 &962292913
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7616042590330686867}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Convex: 1
+  m_CookingOptions: 14
+  m_Mesh: {fileID: 1737872282134143202, guid: ec2fdc42de382314ebd3e355f9706c35, type: 3}
 --- !u!1001 &1360425488594833722
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -310,6 +325,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8885792985795337385, guid: 5a82748b29274fe47abfca339d52a8ad,
+        type: 3}
+      propertyPath: m_TagString
+      value: Pawn
       objectReference: {fileID: 0}
     - target: {fileID: 758088312620266484, guid: 5a82748b29274fe47abfca339d52a8ad,
         type: 3}
@@ -368,6 +388,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5a82748b29274fe47abfca339d52a8ad, type: 3}
+--- !u!1 &7616042590330686867 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8885792985795337385, guid: 5a82748b29274fe47abfca339d52a8ad,
+    type: 3}
+  m_PrefabInstance: {fileID: 1360425488594833722}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1757660097729667790 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 758088312620266484, guid: 5a82748b29274fe47abfca339d52a8ad,

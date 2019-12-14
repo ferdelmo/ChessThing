@@ -37,6 +37,8 @@ public class Player : MonoBehaviour
 
         tg = GameObject.FindGameObjectWithTag("TileGenerator").GetComponent<TileGenerator>();
         tm = GameObject.FindGameObjectWithTag("TileGenerator").GetComponent<TurnManager>();
+
+        IAMovement.Instance.player = this;
     }
 
     static float AnimDur = .3f;

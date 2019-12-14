@@ -30,7 +30,24 @@ public class TurnManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        switch (IAMovement.Instance.difficult)
+        {
+            case 0:
+                player_turn_time = 4.0f;
+                machine_turn_time = 1f;
+                ChessPieces.AnimDur = .75f;
+                break;
+            case 1:
+                player_turn_time = 3f;
+                machine_turn_time = 0.5f;
+                ChessPieces.AnimDur = .35f;
+                break;
+            case 2:
+                player_turn_time = 1f;
+                machine_turn_time = 0.25f;
+                ChessPieces.AnimDur = .25f;
+                break;
+        }
         pTimer = player_turn_time;
         mTimer = machine_turn_time;
 
@@ -92,7 +109,6 @@ public class TurnManager : MonoBehaviour
             }
             else
             {
-
                 yield return new WaitForSeconds(machine_turn_time-killAnimTime);
                 if (IAMovement.Instance.showThreats)
                 {
@@ -100,8 +116,13 @@ public class TurnManager : MonoBehaviour
                     {
                         mark.UnMarkThreatsTile();
                     }
-                    IAMovement.Instance.DecideNextMovement();
-                    AdvanceTurn();
+                }
+
+                IAMovement.Instance.DecideNextMovement();
+                AdvanceTurn();
+
+                if (IAMovement.Instance.showThreats)
+                {
                     foreach (ChessPieces mark in IAMovement.Instance.pieces)
                     {
                         mark.MarkThreatsTile();

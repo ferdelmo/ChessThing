@@ -89,7 +89,7 @@ public class TileGenerator : MonoBehaviour
         {
             foreach (ChessPieces cp in pieces)
             {
-                cp.MoveTo(cp._x, cp._y);
+                cp.MoveToNoAnim(cp._x, cp._y);
             }
             initPieces = false;
         }

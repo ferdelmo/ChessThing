@@ -255,6 +255,8 @@ public class IAMovement
                 {
                     List<ChessPieces> copied1 = new List<ChessPieces>(pieces);
 
+                    Debug.Log("SIZE: " + copied1.Count);
+
                     while (!threated1 && copied1.Count != 0)
                     {
                         int i = Random.Range(0, copied1.Count);
@@ -262,6 +264,7 @@ public class IAMovement
                         TileToThread ttt = new TileToThread();
                         int auxx;
                         //CHANGE TO FIRST TRY TO THREAT NON THREATED TILES
+                        Debug.Log(i + " " + copied1[i] + " " + player.x);
                         while (!threated1 && (auxx = ttt.Get()) != -1)
                         {
                             if (copied1[i].CanThreatInAMov(out mov, player.x + auxx, player.y))

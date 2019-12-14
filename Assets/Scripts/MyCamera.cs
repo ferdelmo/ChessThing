@@ -4,6 +4,7 @@ using UnityEngine;
 
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 
 public class MyCamera : MonoBehaviour
@@ -31,6 +32,8 @@ public class MyCamera : MonoBehaviour
 
     public Text survived;
     public int n_turns = 0;
+
+    public GameObject go_Restart;
 
     // Start is called before the first frame update
     void Start()
@@ -129,7 +132,9 @@ public class MyCamera : MonoBehaviour
 
     public void Exit()
     {
+        IAMovement.Instance.Reset();
         Debug.Log("Exit Game");
+        SceneManager.LoadScene("Menu");
     }
 
     public void Restart()
@@ -142,5 +147,7 @@ public class MyCamera : MonoBehaviour
     {
         GameOverCanvas.SetActive(true);
         survived.text = "You survived " + n_turns + " turns.";
+        EventSystem es = FindObjectOfType<EventSystem>();
+        es.SetSelectedGameObject(go_Restart);
     }
 }

@@ -32,6 +32,8 @@ public class ChessPieces : MonoBehaviour
 
         IAMovement.Instance.pieces.Add(this);
         showThreats = IAMovement.Instance.showThreats;
+
+        tm = GameObject.FindGameObjectWithTag("TileGenerator").GetComponent<TurnManager>();
     }
 
     public virtual Tile[] GetPosibleMovements()
@@ -126,9 +128,19 @@ public class ChessPieces : MonoBehaviour
         }
     }
 
-    public virtual void Start()
+    public virtual void MoveToNoAnim(int x, int y)
     {
-        tm = GameObject.FindGameObjectWithTag("TileGenerator").GetComponent<TurnManager>();
+        _x = x; _y = y;
+        if (tile)
+        {
+            tile.piece = null;
+        }
+        tile = CheckExistTile(x, y);
+        if (tile)
+        {
+            tile.piece = this;
+        }
+        transform.position = Tile.Position(x, y);
     }
 
     public virtual void MoveTo(int x, int y)
@@ -152,7 +164,7 @@ public class ChessPieces : MonoBehaviour
         return t * (1 - t);
     }
 
-    static float AnimDur = .75f;
+    public static float AnimDur = .75f;
     public IEnumerator MoveToAnim(Tile t)
     {
 
@@ -257,7 +269,23 @@ public class ChessPieces : MonoBehaviour
 
     public bool ShouldDestroy()
     {
-        return !(tile.piece != null);
+        if (tile)
+        {
+            return !(tile.piece != null);
+        }
+        else
+        {
+            tile = CheckExistTile(_x, _y);
+            if (tile)
+            {
+                return !(tile.piece != null);
+            }
+            else
+            {
+                Debug.Log("CULO");
+                return true;
+            }
+        }
     }
 
     public virtual void MoveToRandom()
@@ -306,7 +334,7 @@ public class ChessPieces : MonoBehaviour
         AnimDur = 0.4f;
         MoveTo(player.x, player.y);
 
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2);
 
         Rigidbody rb = player.pawn.GetComponent<Rigidbody>();
 
