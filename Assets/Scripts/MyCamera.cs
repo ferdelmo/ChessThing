@@ -28,6 +28,8 @@ public class MyCamera : MonoBehaviour
 
     public GameObject GameOverCanvas;
 
+    public GameObject HighScore;
+
     Coroutine rotate = null;
 
     public Text survived;
@@ -150,6 +152,11 @@ public class MyCamera : MonoBehaviour
     {
         GameOverCanvas.SetActive(true);
         survived.text = "You advanced " + (follow.x-follow.start_x) + " squares.";
+        if(follow.x - follow.start_x > IAMovement.high_score)
+        {
+            IAMovement.high_score = follow.x - follow.start_x;
+            HighScore.SetActive(true);
+        }
         EventSystem es = FindObjectOfType<EventSystem>();
         es.SetSelectedGameObject(go_Restart);
     }

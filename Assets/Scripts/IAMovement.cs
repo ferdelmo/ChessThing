@@ -24,6 +24,7 @@ public class IAMovement
         }
     }
 
+    public static int high_score = 0;
 
     public class TileToThread
     {
