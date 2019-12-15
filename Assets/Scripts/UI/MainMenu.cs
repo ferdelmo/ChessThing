@@ -11,6 +11,7 @@ public class MainMenu : MonoBehaviour
     public GameObject main;
     public GameObject Difficult;
     public GameObject Threats;
+    public GameObject go_Tutorial;
 
     bool showThreats = true;
 
@@ -18,6 +19,7 @@ public class MainMenu : MonoBehaviour
 
     public GameObject yes;
     public GameObject easy;
+    public GameObject back;
 
     bool firstT = true;
     bool firstD = true;
@@ -103,6 +105,15 @@ public class MainMenu : MonoBehaviour
 
     public void Tutorial()
     {
-        SceneManager.LoadScene("Tutorial");
+        main.SetActive(false);
+        go_Tutorial.SetActive(true);
+        es.SetSelectedGameObject(back);
+    }
+
+    public void Back()
+    {
+        go_Tutorial.SetActive(false);
+        main.SetActive(true);
+        es.SetSelectedGameObject(es.firstSelectedGameObject);
     }
 }

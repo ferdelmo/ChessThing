@@ -27,7 +27,20 @@ public class IAMovement
 
     public class TileToThread
     {
-        List<int> numbers = new List<int> { 0, 1, 2 };
+        List<int> numbers;
+
+
+        public TileToThread(List<Movement>[] movs)
+        {
+            numbers = new List<int>();
+            for(int i=0; i< movs.Length; i++)
+            {
+                if(movs[i].Count == 0)
+                {
+                    numbers.Add(i);
+                }
+            }
+        }
 
         public int Get()
         {
@@ -47,7 +60,7 @@ public class IAMovement
 
 
     public int difficult = 0;
-    public bool showThreats = false;
+    public bool showThreats = true;
 
     public enum State { Clear = 0, One = 1, Two = 2, Three = 3};
 
@@ -91,7 +104,23 @@ public class IAMovement
         return false;
     }
 
-    const int MAX_PIECES = 5;
+    public bool CheckPiece(int x, int y)
+    {
+        RaycastHit hit;
+
+        Ray r = new Ray(Tile.Position(x, y) + new Vector3(0, 10, 0), new Vector3(0, -1, 0));
+
+        if (Physics.Raycast(r, out hit, 100, LayerMask.GetMask("Pieces")))
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    public int MAX_PIECES = 5;
     public void CreatePiece()
     {
         if(pieces.Count < MAX_PIECES)
@@ -101,7 +130,15 @@ public class IAMovement
             //Calculate pos
             int y = Random.Range(0, 7);
             int x = player.x + 7;
+
+            while (!CheckPiece(x, y))
+            {
+                y = Random.Range(0, 7);
+                x = player.x + 7;
+            }
+
             ChessPieces cp = null;
+
             switch (type)
             {
                 case 0:
@@ -120,7 +157,6 @@ public class IAMovement
             }
             cp.transform.position = new Vector3(x, 0, y);
             cp.MoveTo(x, y);
-            pieces.Add(cp);
         }
         else
         {
@@ -129,9 +165,9 @@ public class IAMovement
     }
 
     //update state and return an array with the movements that can threat the player
-    public Movement[] UpdateState()
+    public List<Movement>[] UpdateState()
     {
-        Movement[] movs = new Movement[] { new Movement(), new Movement(), new Movement() };
+        List<Movement>[] movs = new List<Movement>[] { new List<Movement>(), new List<Movement>(), new List<Movement>() };
 
         foreach (ChessPieces cp in pieces)
         {
@@ -140,14 +176,11 @@ public class IAMovement
 
         int threats = 0;
 
-        List<Movement> finalMovs = new List<Movement>();
-
-        foreach (Movement m in movs)
+        foreach (List<Movement> m in movs)
         {
-            if (!m.isEmpty)
+            if (m.Count>0)
             {
                 threats++;
-                finalMovs.Add(m);
             }
         }
 
@@ -167,7 +200,7 @@ public class IAMovement
                 break;
         }
 
-        return finalMovs.ToArray();
+        return movs;
     }
 
     public bool KillPlayer()
@@ -188,16 +221,22 @@ public class IAMovement
         int destroyedPieces = 0;
 
         List<Movement> movsToExec = new List<Movement>();
-
+        List<ChessPieces> destroyed = new List<ChessPieces>();
         for(int i=0;i<pieces.Count;i++)
         {
+            Debug.Log(pieces[i]);
             ChessPieces cp = pieces[i];
             if (cp.ShouldDestroy())
             {
-                pieces.RemoveAt(i);
-                GameObject.Destroy(cp.gameObject);
+                destroyed.Add(cp);
                 ++destroyedPieces;
             }
+        }
+
+        foreach(ChessPieces cp in destroyed)
+        {
+            pieces.Remove(cp);
+            cp.DestroyPiece();
         }
 
         if (destroyedPieces > 0)
@@ -205,7 +244,13 @@ public class IAMovement
             CreatePiece();
         }
 
-        Movement[] movs = UpdateState();
+        if (pieces.Count == 0)
+        {
+            CreatePiece();
+            CreatePiece();
+        }
+
+        List<Movement>[] movs = UpdateState();
 
         switch (state)
         {
@@ -219,7 +264,7 @@ public class IAMovement
                 {
                     int i = Random.Range(0, copied0.Count);
                     Movement mov;
-                    TileToThread ttt = new TileToThread();
+                    TileToThread ttt = new TileToThread(movs);
                     int auxx;
                     while (!threated0 && (auxx = ttt.Get())!=-1)
                     {
@@ -247,21 +292,19 @@ public class IAMovement
                 }
                 break;
             case State.One:
-                //There is one threate, create another one, eliminate that one 
+                //There is one threat, create another one, eliminate that one 
                 Debug.Log("One threat");
 
                 bool threated1 = false;
-                if (Random.Range(0.0f, 1.0f) <= 0.75f || true)
+                if (Random.Range(0.0f, 1.0f) <= 0.75f)
                 {
                     List<ChessPieces> copied1 = new List<ChessPieces>(pieces);
-
-                    Debug.Log("SIZE: " + copied1.Count);
 
                     while (!threated1 && copied1.Count != 0)
                     {
                         int i = Random.Range(0, copied1.Count);
                         Movement mov;
-                        TileToThread ttt = new TileToThread();
+                        TileToThread ttt = new TileToThread(movs);
                         int auxx;
                         //CHANGE TO FIRST TRY TO THREAT NON THREATED TILES
                         Debug.Log(i + " " + copied1[i] + " " + player.x);
@@ -293,7 +336,28 @@ public class IAMovement
                 //There are two threat, eliminate one or move random
                 Debug.Log("Two threats");
                 Debug.Log("Move one to reduce threat");
-                movs[Random.Range(0, movs.Length)].piece.MoveToRandom();
+                bool avoided = false;
+                //while (!avoided)
+                //{
+                    int t = Random.Range(0, movs.Length);
+                    while (movs[t].Count == 0)
+                    {
+                        t = Random.Range(0, movs.Length);
+                    }
+
+                    bool all = true;
+                    foreach(Movement m in movs[t])
+                    {
+                        Movement auxMov = new Movement();
+                        all &= m.piece.CanAvoidThreatInAMov(out auxMov);
+                        if (all)
+                        {
+                            movsToExec.Add(auxMov);
+                            avoided = true;
+                        }
+                    }
+                //}
+
                 break;
             case State.Three:
                 // TOO MANY THREATS, PLAYER CANT WIN

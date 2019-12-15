@@ -9,6 +9,7 @@ public class ChessPieces : MonoBehaviour
     public Tile tile;
 
     TurnManager tm;
+    TileGenerator tg;
 
     protected Player player;
 
@@ -34,6 +35,7 @@ public class ChessPieces : MonoBehaviour
         showThreats = IAMovement.Instance.showThreats;
 
         tm = GameObject.FindGameObjectWithTag("TileGenerator").GetComponent<TurnManager>();
+        tg = GameObject.FindGameObjectWithTag("TileGenerator").GetComponent<TileGenerator>();
     }
 
     public virtual Tile[] GetPosibleMovements()
@@ -44,17 +46,20 @@ public class ChessPieces : MonoBehaviour
     public virtual Tile[] GetPosibleMovementsNoPlayerColumn()
     {
         List<Tile> lt = new List<Tile>();
-        lt.AddRange(GetPosibleMovements());
-        for (int i=0;i<lt.Count;i++)
+        List<Tile> resul = new List<Tile>(GetPosibleMovements());
+        for (int i=0;i<resul.Count;i++)
         {
-            Tile t = lt[i];
+            Tile t = resul[i];
             if (t.y == player.y)
             {
-                lt.RemoveAt(i); ;
+                lt.Add(t);
             }
         }
-
-        return lt.ToArray();
+        foreach(Tile t in lt)
+        {
+            resul.Remove(t);
+        }
+        return resul.ToArray();
     }
 
     const int MAX_DIAG = 8;
@@ -65,14 +70,14 @@ public class ChessPieces : MonoBehaviour
         for (int i = 1; i < MAX_DIAG; i++)
         {
             Tile t = CheckExistTile((int)start.x + (int)dir.x * i, (int)start.y + (int)dir.y * i);
-            if (t && !t.piece)
+            if (t && t.piece==null)
             {
 
                 resul.Add(t);
             }
             else
             {
-                break;
+                i=MAX_DIAG;
             }
         }
         return resul.ToArray();
@@ -112,11 +117,38 @@ public class ChessPieces : MonoBehaviour
         return false;
     }
 
-    //Avoid to cover position x,y
-    public virtual bool AvoidThreat(out IAMovement.Movement mov, int x, int y)
+    public virtual bool CanAvoidThreatInAMov(out IAMovement.Movement mov)
     {
         mov = new IAMovement.Movement();
-        return false;
+
+        Tile[] tiles = GetPosibleMovementsNoPlayerColumn();
+        int aux_x = _x, aux_y = _y;
+
+        bool can = false;
+
+        foreach(Tile t in tiles)
+        {
+            bool valid = false;
+
+            _x = t.x; _y = t.y;
+            for(int i = 0; i < 3; i++)
+            {
+                valid |= CanGoToFrom(t.x, t.y, player.x + i,player.y);
+            }
+            if (!valid)
+            {
+                mov.isEmpty = false;
+                mov.piece = this;
+                mov.tile = t;
+                can = true;
+                break;
+            }
+        }
+
+        _x = aux_x; _y = aux_y;
+        return can;
+
+
     }
 
 
@@ -155,7 +187,7 @@ public class ChessPieces : MonoBehaviour
         {
             tile.piece = this;
         }
-        StartCoroutine(MoveToAnim(tile));
+        StartCoroutine(MoveToAnim(x,y));
     }
 
 
@@ -165,21 +197,23 @@ public class ChessPieces : MonoBehaviour
     }
 
     public static float AnimDur = .75f;
-    public IEnumerator MoveToAnim(Tile t)
+    public IEnumerator MoveToAnim(int x, int y)
     {
 
         Vector3 startPos = transform.position;
 
         float counter = 0;
 
+        Vector3 pos = Tile.Position(x, y); ;
+
         while (counter < AnimDur)
         {
             counter += Time.deltaTime;
-            transform.position = Vector3.Lerp(startPos, t.transform.position, counter / AnimDur);
+            transform.position = Vector3.Lerp(startPos, pos, counter / AnimDur);
             transform.position = new Vector3(transform.position.x, 1 * Arch(counter / AnimDur), transform.position.z);
             yield return null;
         }
-        transform.position = Tile.Position(t.x, t.y);
+        transform.position = pos;
     }
 
     public Tile CheckExistTile(int x, int y)
@@ -191,19 +225,45 @@ public class ChessPieces : MonoBehaviour
         if (Physics.Raycast(r, out hit, 100, LayerMask.GetMask("Tile")))
         {
             Tile aux = hit.transform.gameObject.GetComponent<Tile>();
-            if (aux == tile)
+            if (tile && aux == tile)
             {
                 return null;
             }
-            else
+            else if(aux)
             {
                 return aux;
+            }
+            else
+            {
+                return CheckExistTileNoRay(x, y);
             }
         }
         else
         {
-            return null;
+            return CheckExistTileNoRay(x, y);
         }
+    }
+
+    public Tile CheckExistTileNoRay(int x, int y)
+    {
+        Tile resul = null;
+        Tile[,] tiles = tg.Map;
+
+        for(int i = 0; i < tiles.GetLength(0) && resul == null; i++)
+        {
+            if (tiles[i,0].x == x)
+            {
+                for(int j = 0; j < tiles.GetLength(1) && resul == null; j++)
+                {
+                    if (tiles[i, j].y == y)
+                    {
+                        resul = tiles[i,j];
+                    }
+                }
+            }
+        }
+        return resul;
+
     }
 
     //Return true if player can be kill in next move
@@ -246,22 +306,21 @@ public class ChessPieces : MonoBehaviour
      * Ex, {true, false, true}, this piece can kill the player if stay in the same tile or if it moves 2 tiles
      * array is iniciated by the function
      */
-    public void CanKillPlayerInHisNextMove(ref IAMovement.Movement[] array)
+    public void CanKillPlayerInHisNextMove(ref List<IAMovement.Movement>[] array)
     {
         LayerMask[] lm = new LayerMask[] { LayerMask.GetMask("Player"), LayerMask.GetMask("OneMove"), LayerMask.GetMask("TwoMove") };
+
         foreach (Tile t in GetPosibleMovements())
         {
             for (int i = 0; i < 3; i++)
             {
-                if (array[i].isEmpty)
+                if (Physics.Raycast(t.transform.position + new Vector3(0, 10, 0), -Vector3.up, 100.0f, lm[i]))
                 {
-
-                    if (Physics.Raycast(t.transform.position + new Vector3(0, 10, 0), -Vector3.up, 100.0f, lm[i]))
-                    {
-                        array[i].isEmpty = false;
-                        array[i].tile = t;
-                        array[i].piece = this;
-                    }
+                    IAMovement.Movement aux = new IAMovement.Movement();
+                    aux.isEmpty = false;
+                    aux.tile = t;
+                    aux.piece = this;
+                    array[i].Add(aux);
                 }
             }
         }
@@ -269,6 +328,14 @@ public class ChessPieces : MonoBehaviour
 
     public bool ShouldDestroy()
     {
+        if (!tile)
+        {
+            tile = CheckExistTile(_x, _y);
+            if (tile)
+            {
+                tile.piece = this;
+            }
+        }
         if (tile)
         {
             return !(tile.piece != null);
@@ -331,6 +398,65 @@ public class ChessPieces : MonoBehaviour
 
 
         Camera.main.transform.parent.GetComponent<MyCamera>().ShowGameOver();
+    }
+
+    public void DestroyPiece()
+    {
+        StopAllCoroutines();
+        StartCoroutine(Reduce());
+    }
+
+    IEnumerator Reduce()
+    {
+        float anim = 0.5f;
+        float counter = 0;
+
+        while (counter < anim)
+        {
+            counter += Time.deltaTime;
+            transform.localScale -= transform.localScale / anim * Time.deltaTime;
+            yield return null;
+        }
+
+        Destroy(this.gameObject);
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj == null) return false;
+        ChessPieces objAsPart = obj as ChessPieces;
+        if (objAsPart == null) return false;
+        else return this == (ChessPieces)obj;
+    }
+
+    public static bool operator ==(ChessPieces lhs, ChessPieces rhs)
+    {
+        if (lhs != null && rhs != null && lhs._x == rhs._x && lhs._y == rhs._y)
+        {
+            return true;
+        }
+        return false;
+    }
+    public static bool operator !=(ChessPieces lhs, ChessPieces rhs)
+    {
+        if (!lhs && !rhs)
+        {
+            return false;
+        }
+        if (!lhs)
+        {
+            return true;
+        }
+        if (!rhs)
+        {
+            return true;
+        }
+        if (lhs._x == rhs._x && lhs._y == rhs._y)
+        {
+
+            return false;
+        }
+        return true;
     }
 }
 

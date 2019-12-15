@@ -16,8 +16,8 @@ public class Tile : MonoBehaviour
         return startPos + new Vector3(x * tileSize, 0, y * tileSize);
     }
 
-    int _x;
-    int _y;
+    public int _x;
+    public int _y;
 
     //true if white
     bool color = false;
@@ -150,5 +150,12 @@ public class Tile : MonoBehaviour
             return false;
         }
         return true;
+    }
+    public override bool Equals(object obj)
+    {
+        if (obj == null) return false;
+        Tile objAsPart = obj as Tile;
+        if (objAsPart == null) return false;
+        else return this == (Tile)obj;
     }
 }
