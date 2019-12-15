@@ -133,7 +133,6 @@ public class MyCamera : MonoBehaviour
     public void Exit()
     {
         IAMovement.Instance.Reset();
-        Debug.Log("Exit Game");
         SceneManager.LoadScene("Menu");
     }
 
@@ -150,7 +149,7 @@ public class MyCamera : MonoBehaviour
     public void ShowGameOver()
     {
         GameOverCanvas.SetActive(true);
-        survived.text = "You survived " + n_turns + " turns.";
+        survived.text = "You advanced " + (follow.x-follow.start_x) + " squares.";
         EventSystem es = FindObjectOfType<EventSystem>();
         es.SetSelectedGameObject(go_Restart);
     }

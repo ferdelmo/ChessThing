@@ -41,7 +41,7 @@ public class TurnManager : MonoBehaviour
                 IAMovement.Instance.totalMovsPosible = 1;
                 break;
             case 1:
-                player_turn_time = 3f;
+                player_turn_time = 2.25f;
                 machine_turn_time = 0.5f;
                 ChessPieces.AnimDur = .35f;
                 Player.AnimDur = .1f;

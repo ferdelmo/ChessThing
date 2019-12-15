@@ -29,6 +29,7 @@ public class IAMovement
     {
         List<int> numbers;
 
+        int numT = 0;
 
         public TileToThread(List<Movement>[] movs)
         {
@@ -37,7 +38,12 @@ public class IAMovement
             {
                 if(movs[i].Count == 0)
                 {
+                    numT++;
                     numbers.Add(i);
+                    if (i == 0)
+                    {
+                        numbers.Add(i);
+                    }
                 }
             }
             IAMovement.Shuffle<int>(ref numbers);
@@ -45,10 +51,11 @@ public class IAMovement
 
         public int Get()
         {
-            if (numbers.Count > 0)
+            if (numbers.Count > 0 && numT>0)
             {
                 int resul = numbers[0];
                 numbers.RemoveAt(0);
+                numT--;
                 return resul;
             }
             else
@@ -88,6 +95,8 @@ public class IAMovement
     public int totalMovsPosible = 0;
 
     bool rook = false;
+
+    ChessPieces lastMoved = null;
 
     public void Reset()
     {
@@ -280,7 +289,7 @@ public class IAMovement
             cp.DestroyPiece();
         }
 
-        if (destroyedPieces > 0 && pieces.Count<MAX_PIECES/2)
+        if (pieces.Count<MAX_PIECES/2)
         {
             CreatePiece();
         }
@@ -337,7 +346,7 @@ public class IAMovement
                 Debug.Log("One threat");
 
                 bool threated1 = false;
-                if (Random.Range(0.0f, 1.0f) <= 0.75f)
+                if (Random.Range(0.0f, 1.0f) <= 0.4f*(1+difficult))
                 {
 
                     Movement mov;
@@ -366,11 +375,17 @@ public class IAMovement
                         }
                     }
                 }
-                if(!threated1)
+                if(!threated1 || Random.Range(0.0f,1.0f)<=0.25*difficult)
                 {
                     Debug.Log("CREATE A PIECE");
                     //pieces[Random.Range(0, pieces.Count)].MoveToRandom();
                     CreatePiece();
+                    if (!threated1)
+                    {
+                        Movement auxMov = new Movement();
+                        pieces[Random.Range(0, pieces.Count)].MoveToRandom(out auxMov);
+                        movsToExec.Add(auxMov);
+                    }
                 }
                 break;
             case State.Two:
@@ -380,21 +395,35 @@ public class IAMovement
                 bool avoided = false;
                 //while (!avoided)
                 //{
+                int infinity = 10;
                 int t = Random.Range(1, movs.Length);
-                /*while (movs[t].Count == 0)
+                while (!avoided)
                 {
-                    t = Random.Range(0, movs.Length);
-                }*/
-
-                bool all = true;
-                foreach(Movement m in movs[t])
-                {
-                    Movement auxMov = new Movement();
-                    all &= m.piece.CanAvoidThreatInAMov(out auxMov);
-                    if (all)
+                    bool all = true;
+                    foreach (Movement m in movs[t])
                     {
-                        movsToExec.Add(auxMov);
-                        avoided = true;
+                        Movement auxMov = new Movement();
+                        all &= m.piece.CanAvoidThreatInAMov(out auxMov);
+                        if (all)
+                        {
+                            movsToExec.Add(auxMov);
+                            avoided = true;
+                        }
+                    }
+                    while (movs[t].Count == 0 && !avoided)
+                    {
+                        t = Random.Range(0, movs.Length);
+                    }
+                    infinity--;
+                    if (infinity < 0)
+                    {
+                        foreach (Movement m in movs[t])
+                        {
+                            Movement auxMov;
+                            m.piece.MoveToRandom(out auxMov);
+                            movsToExec.Add(auxMov);
+                        }
+                        break;
                     }
                 }
                 //}
@@ -464,11 +493,12 @@ public class IAMovement
                     movsToExec.Add(auxMov);
                 }
             }
-        }
+        }  
 
         IAMovement.Shuffle<ChessPieces>(ref pieces);
         foreach (Movement mov in movsToExec)
         {
+            lastMoved = mov.piece;
             mov.piece.MoveTo(mov.tile.x, mov.tile.y);
         }
     }

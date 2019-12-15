@@ -378,13 +378,16 @@ public class ChessPieces : MonoBehaviour
         }
     }
 
-    public virtual void MoveToRandom()
+    public virtual void MoveToRandom(out IAMovement.Movement mov)
     {
         Tile[] posibleMovs = GetPosibleMovementsNoPlayerColumn();
 
         Tile dest = posibleMovs[Random.Range(0, posibleMovs.Length)];
 
-        MoveTo(dest.x, dest.y);
+        mov = new IAMovement.Movement();
+        mov.isEmpty = false;
+        mov.tile = dest;
+        mov.piece = this;
     }
 
     private void Update()
@@ -417,7 +420,13 @@ public class ChessPieces : MonoBehaviour
         {
             mc.enabled = true;
         }
+
+        float dist = Vector2.Distance(new Vector2(_x, _y), new Vector2(player.x, player.y));
         AnimDur = 0.15f;
+        if (dist > 1)
+        {
+            AnimDur += dist * 0.025f;
+        }
         MoveTo(player.x, player.y);
 
         yield return new WaitForSeconds(2);
@@ -431,7 +440,8 @@ public class ChessPieces : MonoBehaviour
     public void DestroyPiece()
     {
         StopAllCoroutines();
-        StartCoroutine(Reduce());
+        Destroy(this.gameObject);
+        //StartCoroutine(Reduce());
     }
 
     IEnumerator Reduce()
@@ -460,6 +470,10 @@ public class ChessPieces : MonoBehaviour
     public static bool operator ==(ChessPieces lhs, ChessPieces rhs)
     {
         if (lhs != null && rhs != null && lhs._x == rhs._x && lhs._y == rhs._y)
+        {
+            return true;
+        }
+        else if(!lhs && !rhs)
         {
             return true;
         }
