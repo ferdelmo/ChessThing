@@ -114,7 +114,7 @@ public class MyCamera : MonoBehaviour
 
     IEnumerator Push(Transform t, float h)
     {
-        const float AnimDur = 0.2f;
+        float AnimDur = 0.15f-IAMovement.Instance.difficult*0.05f;
 
         float startH = t.position.y;
         float counter = 0;

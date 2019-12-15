@@ -409,6 +409,8 @@ public class ChessPieces : MonoBehaviour
 
     public void KillPlayer()
     {
+
+        
         StartCoroutine(KillPlayerCoroutine());
     }
 
@@ -441,6 +443,10 @@ public class ChessPieces : MonoBehaviour
     public void DestroyPiece()
     {
         StopAllCoroutines();
+        foreach (Tile t in ts)
+        {
+            t.UnMarkAsThreat();
+        }
         Destroy(this.gameObject);
         //StartCoroutine(Reduce());
     }

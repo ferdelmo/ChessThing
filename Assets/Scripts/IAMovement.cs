@@ -469,6 +469,7 @@ public class IAMovement
         foreach (Movement mov in movsToExec)
         {
             mov.piece.MoveToNoAnim((int)auxPos[i_des].x, (int)auxPos[i_des].y);
+            i_des++;
         }
         if (state == State.Three)
         {

@@ -43,7 +43,7 @@ public class TurnManager : MonoBehaviour
             case 1:
                 player_turn_time = 2.25f;
                 machine_turn_time = 0.5f;
-                ChessPieces.AnimDur = .35f;
+                ChessPieces.AnimDur = .15f;
                 Player.AnimDur = .1f;
                 IAMovement.Instance.MAX_PIECES = 5;
                 IAMovement.Instance.totalMovsPosible = 2;
