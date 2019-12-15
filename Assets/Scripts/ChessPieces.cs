@@ -390,8 +390,9 @@ public class ChessPieces : MonoBehaviour
         mov.piece = this;
     }
 
-    private void Update()
+    void LateUpdate()
     {
+        
         if (showThreats)
         {
             foreach (Tile t in ts)

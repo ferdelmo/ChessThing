@@ -19,6 +19,8 @@ public class Tile : MonoBehaviour
     public int _x;
     public int _y;
 
+    public GameObject feedback;
+
     //true if white
     bool color = false;
 
@@ -107,11 +109,13 @@ public class Tile : MonoBehaviour
 
     public void MarkAsThreat()
     {
-        GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
+        //GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
+        feedback.SetActive(true);
     }
 
     public void UnMarkAsThreat()
     {
+        /*
         if (isWhite)
         {
             SetWhite();
@@ -120,6 +124,8 @@ public class Tile : MonoBehaviour
         {
             SetBlack();
         }
+        */
+        feedback.SetActive(false);
     }
 
     public static bool operator ==(Tile lhs, Tile rhs)

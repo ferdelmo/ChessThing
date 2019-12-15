@@ -87,6 +87,22 @@ public class TurnManager : MonoBehaviour
 
     public void AdvanceTurn()
     {
+        /*
+        if (IAMovement.Instance.showThreats)
+        {
+            foreach (ChessPieces mark in IAMovement.Instance.pieces)
+            {
+                mark.UnMarkThreatsTile();
+            }
+        }
+        if (IAMovement.Instance.showThreats)
+        {
+            foreach (ChessPieces mark in IAMovement.Instance.pieces)
+            {
+                mark.MarkThreatsTile();
+            }
+        }
+        */
         StopAllCoroutines();
         player_turn = !player_turn;
         StartCoroutine(DelayTurn());
@@ -135,17 +151,10 @@ public class TurnManager : MonoBehaviour
                 {
                     IAMovement.Instance.KillPlayer();
                 }
-                if (IAMovement.Instance.showThreats)
-                {
-                    foreach (ChessPieces mark in IAMovement.Instance.pieces)
-                    {
-                        mark.UnMarkThreatsTile();
-                    }
-                }
 
                 IAMovement.Instance.DecideNextMovement();
                 AdvanceTurn();
-
+                /*
                 if (IAMovement.Instance.showThreats)
                 {
                     foreach (ChessPieces mark in IAMovement.Instance.pieces)
@@ -153,6 +162,7 @@ public class TurnManager : MonoBehaviour
                         mark.MarkThreatsTile();
                     }
                 }
+                */
             }
         }
 
