@@ -128,6 +128,10 @@ public class Tile : MonoBehaviour
         {
             return true;
         }
+        else if(!lhs && !rhs)
+        {
+            return true;
+        }
         return false;
     }
     public static bool operator !=(Tile lhs, Tile rhs)

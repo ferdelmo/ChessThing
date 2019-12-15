@@ -37,18 +37,24 @@ public class TurnManager : MonoBehaviour
                 machine_turn_time = 1f;
                 ChessPieces.AnimDur = .75f;
                 Player.AnimDur = .3f;
+                IAMovement.Instance.MAX_PIECES = 3;
+                IAMovement.Instance.totalMovsPosible = 1;
                 break;
             case 1:
                 player_turn_time = 3f;
                 machine_turn_time = 0.5f;
                 ChessPieces.AnimDur = .35f;
                 Player.AnimDur = .1f;
+                IAMovement.Instance.MAX_PIECES = 5;
+                IAMovement.Instance.totalMovsPosible = 2;
                 break;
             case 2:
-                player_turn_time = 1f;
+                player_turn_time = 1.5f;
                 machine_turn_time = 0.25f;
                 ChessPieces.AnimDur = .1f;
-                Player.AnimDur = .05f; 
+                Player.AnimDur = .05f;
+                IAMovement.Instance.MAX_PIECES = 8;
+                IAMovement.Instance.totalMovsPosible = 5;
                 break;
         }
         pTimer = player_turn_time;

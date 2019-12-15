@@ -72,7 +72,7 @@ public class IAMovement
     }
 
 
-    public int difficult = 0;
+    public int difficult = 2;
     public bool showThreats = true;
 
     public enum State { Clear = 0, One = 1, Two = 2, Three = 3};
@@ -86,6 +86,8 @@ public class IAMovement
     public Player player;
 
     public int totalMovsPosible = 0;
+
+    bool rook = false;
 
     public void Reset()
     {
@@ -150,7 +152,15 @@ public class IAMovement
             }
             else
             {
-                type = 2;
+                if (!rook)
+                {
+                    type = 2;
+                    rook = true;
+                }
+                else
+                {
+                    type = 0;
+                }
             }
 
             //Calculate pos
@@ -181,8 +191,8 @@ public class IAMovement
             {
                 y++;
             }
-            cp.transform.position = new Vector3(x, 0, y);
-            cp.MoveTo(x, y);
+            cp.transform.position = Tile.Position(x, y);
+            cp.MoveToNoAnim(x, y);
         }
         else
         {
@@ -262,10 +272,15 @@ public class IAMovement
         foreach(ChessPieces cp in destroyed)
         {
             pieces.Remove(cp);
+            if(cp is Rook)
+            {
+                rook = false;
+            }
+            cp.UnMarkThreatsTile();
             cp.DestroyPiece();
         }
 
-        if (destroyedPieces > 0)
+        if (destroyedPieces > 0 && pieces.Count<MAX_PIECES/2)
         {
             CreatePiece();
         }
@@ -365,23 +380,23 @@ public class IAMovement
                 bool avoided = false;
                 //while (!avoided)
                 //{
-                    int t = Random.Range(0, movs.Length);
-                    while (movs[t].Count == 0)
-                    {
-                        t = Random.Range(0, movs.Length);
-                    }
+                int t = Random.Range(1, movs.Length);
+                /*while (movs[t].Count == 0)
+                {
+                    t = Random.Range(0, movs.Length);
+                }*/
 
-                    bool all = true;
-                    foreach(Movement m in movs[t])
+                bool all = true;
+                foreach(Movement m in movs[t])
+                {
+                    Movement auxMov = new Movement();
+                    all &= m.piece.CanAvoidThreatInAMov(out auxMov);
+                    if (all)
                     {
-                        Movement auxMov = new Movement();
-                        all &= m.piece.CanAvoidThreatInAMov(out auxMov);
-                        if (all)
-                        {
-                            movsToExec.Add(auxMov);
-                            avoided = true;
-                        }
+                        movsToExec.Add(auxMov);
+                        avoided = true;
                     }
+                }
                 //}
 
                 break;
@@ -414,11 +429,21 @@ public class IAMovement
                 break;
         }
 
-
-        movs = UpdateState();
-
-        if(state == State.Three)
+        List<Vector2> auxPos = new List<Vector2>();
+        foreach (Movement mov in movsToExec)
         {
+            auxPos.Add(new Vector2(mov.piece._x, mov.piece._y));
+            mov.piece.MoveToNoAnim(mov.tile.x, mov.tile.y);
+        }
+        movs = UpdateState();
+        int i_des = 0;
+        foreach (Movement mov in movsToExec)
+        {
+            mov.piece.MoveToNoAnim((int)auxPos[i_des].x, (int)auxPos[i_des].y);
+        }
+        if (state == State.Three)
+        {
+            movsToExec = new List<Movement>();
             Debug.Log("KILL MY LIFE");
             foreach (Movement m in movs[0])
             {

@@ -181,6 +181,10 @@ public class ChessPieces : MonoBehaviour
         {
             tile.piece = this;
         }
+        else
+        {
+            Debug.Log("ESTO HACE QUE REVIENTE MUUUUUUY FUERTE");
+        }
         transform.position = Tile.Position(x, y);
     }
 
@@ -195,6 +199,10 @@ public class ChessPieces : MonoBehaviour
         if (tile)
         {
             tile.piece = this;
+        }
+        else
+        {
+            Debug.Log("ESTO HACE QUE REVIENTE MUUUUUUY FUERTE");
         }
         StartCoroutine(MoveToAnim(x,y));
     }
@@ -227,9 +235,12 @@ public class ChessPieces : MonoBehaviour
 
     public Tile CheckExistTile(int x, int y)
     {
+        return CheckExistTileNoRay(x, y);
         RaycastHit hit;
 
         Ray r = new Ray(Tile.Position(x, y) + new Vector3(0, 10, 0), new Vector3(0, -1, 0));
+
+        //Ray r = new Ray(new Vector3(x, 10, y), new Vector3(0, -1, 0));
 
         if (Physics.Raycast(r, out hit, 100, LayerMask.GetMask("Tile")))
         {
@@ -347,6 +358,18 @@ public class ChessPieces : MonoBehaviour
         }
         if (tile)
         {
+            if (!tile.piece)
+            {
+                tile = CheckExistTile(_x, _y);
+                if (tile)
+                {
+                    tile.piece = this;
+                }
+                else
+                {
+                    return true;
+                }
+            }
             return !(tile.piece != null);
         }
         else
@@ -393,12 +416,8 @@ public class ChessPieces : MonoBehaviour
         foreach (MeshCollider mc in meshCollider)
         {
             mc.enabled = true;
-
         }
-        if (AnimDur > 0.4)
-        {
-            AnimDur = 0.4f;
-        }
+        AnimDur = 0.15f;
         MoveTo(player.x, player.y);
 
         yield return new WaitForSeconds(2);

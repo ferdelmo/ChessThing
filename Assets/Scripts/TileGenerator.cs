@@ -75,6 +75,10 @@ public class TileGenerator : MonoBehaviour
             {
                 t.SetBlack();
             }
+            if (t.piece)
+            {
+                t.piece.tile = null;
+            }
             t.piece = null;
         }
         lastX++;
