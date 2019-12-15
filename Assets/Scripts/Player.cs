@@ -7,7 +7,7 @@ public class Player : MonoBehaviour
 
     public int start_x, start_y;
 
-    int _x, _y;
+    public int _x, _y;
 
     TileGenerator tg;
     TurnManager tm;

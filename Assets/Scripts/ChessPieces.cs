@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class ChessPieces : MonoBehaviour
 {
     public int _x, _y;
@@ -20,6 +22,10 @@ public class ChessPieces : MonoBehaviour
     MeshCollider[] meshCollider;
 
     bool showThreats = false;
+
+
+
+    
 
     public void Awake()
     {
@@ -59,6 +65,9 @@ public class ChessPieces : MonoBehaviour
         {
             resul.Remove(t);
         }
+
+        IAMovement.Shuffle<Tile>(ref resul);
+
         return resul.ToArray();
     }
 
@@ -70,7 +79,7 @@ public class ChessPieces : MonoBehaviour
         for (int i = 1; i < MAX_DIAG; i++)
         {
             Tile t = CheckExistTile((int)start.x + (int)dir.x * i, (int)start.y + (int)dir.y * i);
-            if (t && t.piece==null)
+            if (t && IAMovement.CheckPiece(t.x,t.y))
             {
 
                 resul.Add(t);

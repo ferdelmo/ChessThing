@@ -40,21 +40,34 @@ public class IAMovement
                     numbers.Add(i);
                 }
             }
+            IAMovement.Shuffle<int>(ref numbers);
         }
 
         public int Get()
         {
             if (numbers.Count > 0)
             {
-                int aux = Random.Range(0, numbers.Count);
-                int resul = numbers[aux];
-                numbers.RemoveAt(aux);
+                int resul = numbers[0];
+                numbers.RemoveAt(0);
                 return resul;
             }
             else
             {
                 return -1;
             }
+        }
+    }
+
+    public static void Shuffle<T>(ref List<T> list)
+    {
+        int n = list.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = Random.Range(0, list.Count);
+            T value = list[k];
+            list[k] = list[n];
+            list[n] = value;
         }
     }
 
@@ -72,6 +85,7 @@ public class IAMovement
 
     public Player player;
 
+    public int totalMovsPosible = 0;
 
     public void Reset()
     {
@@ -104,7 +118,7 @@ public class IAMovement
         return false;
     }
 
-    public bool CheckPiece(int x, int y)
+    public static bool CheckPiece(int x, int y)
     {
         RaycastHit hit;
 
@@ -125,7 +139,19 @@ public class IAMovement
     {
         if(pieces.Count < MAX_PIECES)
         {
-            int type = Random.Range(0, 3); //0 kngiht, 1 bishop, 2 rook
+            int type = 0;  //0 kngiht, 1 bishop, 2 rook
+            float p = Random.Range(0.0f, 1.0f);
+            if (p<0.45f){
+                type = 0;
+            }
+            else if(0.45f<= p && p < 0.9f)
+            {
+                type = 1;
+            }
+            else
+            {
+                type = 2;
+            }
 
             //Calculate pos
             int y = Random.Range(0, 7);
@@ -298,18 +324,18 @@ public class IAMovement
                 bool threated1 = false;
                 if (Random.Range(0.0f, 1.0f) <= 0.75f)
                 {
-                    List<ChessPieces> copied1 = new List<ChessPieces>(pieces);
 
-                    while (!threated1 && copied1.Count != 0)
+                    Movement mov;
+                    TileToThread ttt = new TileToThread(movs);
+                    int auxx;
+                    while (!threated1 && (auxx = ttt.Get()) != -1)
                     {
-                        int i = Random.Range(0, copied1.Count);
-                        Movement mov;
-                        TileToThread ttt = new TileToThread(movs);
-                        int auxx;
-                        //CHANGE TO FIRST TRY TO THREAT NON THREATED TILES
-                        Debug.Log(i + " " + copied1[i] + " " + player.x);
-                        while (!threated1 && (auxx = ttt.Get()) != -1)
+                        List<ChessPieces> copied1 = new List<ChessPieces>(pieces);
+
+                        while (!threated1 && copied1.Count != 0)
                         {
+                            int i = Random.Range(0, copied1.Count);
+                            //CHANGE TO FIRST TRY TO THREAT NON THREATED TILES
                             if (copied1[i].CanThreatInAMov(out mov, player.x + auxx, player.y))
                             {
                                 //Execute movement
@@ -318,10 +344,10 @@ public class IAMovement
                                 movsToExec.Add(new Movement(copied1[i], mov.tile));
 
                             }
-                        }
-                        if (!threated1)
-                        {
-                            copied1.RemoveAt(i);
+                            if (!threated1)
+                            {
+                                copied1.RemoveAt(i);
+                            }
                         }
                     }
                 }
@@ -363,10 +389,60 @@ public class IAMovement
                 // TOO MANY THREATS, PLAYER CANT WIN
                 Debug.Log("PLAYER IS GOING TO LOSE");
 
+                foreach (Movement m in movs[0])
+                {
+                    Movement auxMov = new Movement();
+                    bool aux = m.piece.CanAvoidThreatInAMov(out auxMov);
+                    if (aux)
+                    {
+                        movsToExec.Add(auxMov);
+                        avoided = true;
+                    }
+                }
+
+                foreach (Movement m in movs[2])
+                {
+                    Movement auxMov = new Movement();
+                    bool aux = m.piece.CanAvoidThreatInAMov(out auxMov);
+                    if (aux)
+                    {
+                        movsToExec.Add(auxMov);
+                        avoided = true;
+                    }
+                }
+
                 break;
         }
 
-        foreach(Movement mov in movsToExec)
+
+        movs = UpdateState();
+
+        if(state == State.Three)
+        {
+            Debug.Log("KILL MY LIFE");
+            foreach (Movement m in movs[0])
+            {
+                Movement auxMov = new Movement();
+                bool aux = m.piece.CanAvoidThreatInAMov(out auxMov);
+                if (aux)
+                {
+                    movsToExec.Add(auxMov);
+                }
+            }
+
+            foreach (Movement m in movs[2])
+            {
+                Movement auxMov = new Movement();
+                bool aux = m.piece.CanAvoidThreatInAMov(out auxMov);
+                if (aux)
+                {
+                    movsToExec.Add(auxMov);
+                }
+            }
+        }
+
+        IAMovement.Shuffle<ChessPieces>(ref pieces);
+        foreach (Movement mov in movsToExec)
         {
             mov.piece.MoveTo(mov.tile.x, mov.tile.y);
         }
